@@ -1,0 +1,88 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 3px 6px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  text-align: left;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* --row-hover is inheritable: a container can set it (e.g. rows on a
+   --surface-2 background hover to --surface instead). Falls back otherwise. */
+.row:hover,
+.active {
+  background: var(--row-hover, var(--surface-2));
+}
+
+/* a small lead on hover — the row leans toward the pointer (not on inline
+   pairs, where it would fight the A → B arrow) */
+.row:not(.inline):hover {
+  transform: translateX(2px);
+}
+
+/* stacked name + sub-line (used when `sub` is provided) */
+.body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-2xs);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inline: auto width for placement inside a flex row (e.g. an A → B pair). */
+.inline {
+  width: auto;
+  padding: 2px 6px;
+}
+
+.inline .name {
+  overflow: visible;
+}
+
+/* Bordered variant — tinted outline (borderColor set inline). */
+.bordered {
+  padding: 4px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.bordered:hover {
+  background: var(--border);
+}

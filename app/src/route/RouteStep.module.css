@@ -1,0 +1,94 @@
+.card {
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Evolve vs de-evolve is conveyed by the coloured kind label + ▲/▼ glyph and a
+   full-border tint — not a side stripe. */
+.evolve {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+}
+
+.devolve {
+  border-color: var(--border);
+}
+
+.active {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+}
+
+/* extends the global `.label` utility */
+.kind {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.evolve .kind {
+  color: var(--accent);
+}
+
+.devolve .kind {
+  color: var(--text-dim);
+}
+
+/* Base-personality pill. Filled (unlike the outlined `≥` requirement Chips) so
+   it reads as a property of the target, not a threshold to clear. Chip metrics
+   are matched so it sits flush alongside the gate chips. */
+.persona {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 17px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* Keyed like the app's global `.label` utility (uppercase, tracked, --text-dim),
+   just smaller to sit in the pill. The value itself carries full --text contrast,
+   so the personality name — not this supporting key — is what reads strongest. */
+.personaKey {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* De-digivolve availability rule (replaces the old "always available" tag). */
+.note {
+  margin-top: 6px;
+  font-size: var(--fs-2xs);
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* inline MonRows sit on the surface-2 card, so hover to the darker surface */
+  --row-hover: var(--surface);
+}
+
+.arrow {
+  color: var(--text-dim);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}

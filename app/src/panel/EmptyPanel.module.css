@@ -1,0 +1,163 @@
+.panel {
+  /* subtle top wash in the brand amber (accent resets to amber when idle) */
+  background: linear-gradient(180deg, var(--accent-faint), transparent 220px), var(--surface);
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 22px 18px 20px;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: introIn var(--dur-3) var(--ease-out-quint) both;
+}
+
+@keyframes introIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.heading {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0;
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 46ch;
+}
+
+.lede em {
+  font-style: normal;
+  color: var(--text);
+}
+
+.surprise {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 7px 14px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  transition:
+    background var(--transition-fast),
+    transform var(--dur-press) var(--ease-out-quart);
+}
+
+.surprise:hover {
+  background: var(--accent-strong);
+}
+
+.surprise:active {
+  transform: scale(0.96);
+}
+
+.sparkle {
+  display: inline-block;
+  transition: transform var(--transition) var(--ease-out-quint);
+}
+
+/* the spark twists as you reach for a random pick */
+.surprise:hover .sparkle {
+  transform: rotate(90deg) scale(1.15);
+}
+
+.section {
+  margin-top: 22px;
+}
+
+.section > .label {
+  margin-bottom: 8px;
+}
+
+.featured {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* the partner list slips in one after another as the panel arrives.
+   `backwards` (not `both`) so rows release to base style once landed — otherwise
+   a forwards-held transform would cancel MonRow's hover nudge. */
+.featured > button {
+  animation: featuredIn var(--dur-2) var(--ease-out-quint) backwards;
+}
+.featured > button:nth-child(1) {
+  animation-delay: 60ms;
+}
+.featured > button:nth-child(2) {
+  animation-delay: 105ms;
+}
+.featured > button:nth-child(3) {
+  animation-delay: 150ms;
+}
+.featured > button:nth-child(4) {
+  animation-delay: 195ms;
+}
+.featured > button:nth-child(5) {
+  animation-delay: 240ms;
+}
+.featured > button:nth-child(6) {
+  animation-delay: 285ms;
+}
+
+@keyframes featuredIn {
+  from {
+    opacity: 0;
+    transform: translateX(-7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.keys {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.keyRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.key {
+  flex-shrink: 0;
+  min-width: 104px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.keyDesc {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}

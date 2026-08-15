@@ -1,0 +1,201 @@
+/* Floating focus-mode control — top-left of the graph, mirroring where the
+   attribute legend sits bottom-left. Present only while branches are hidden. */
+.wrap {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: var(--z-toolbar);
+  display: inline-flex;
+}
+
+/* The trigger reads as an active view filter: it carries the live accent (a wash
+   + warmed border) because hiding branches is a deliberate, ongoing state. */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: color-mix(in oklab, var(--accent-soft), var(--legend-bg) 55%);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--dur-press);
+}
+
+.trigger:hover,
+.triggerOpen {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent-soft), var(--legend-bg) 30%);
+}
+
+.trigger:active {
+  transform: scale(0.97);
+}
+
+.glyph {
+  color: var(--accent);
+  font-size: var(--fs-md);
+}
+
+.count {
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.triggerText {
+  color: var(--text-dim);
+}
+
+.caret {
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+}
+
+/* Popover — same vocabulary as the settings menu: surface fill, dropdown shadow,
+   brief pop-in. A native top-layer popover (positioned in JS from the trigger) so
+   it clears the detail panel / bottom-sheet stacking context. `display` is set
+   only on :popover-open, so this rule never fights the UA's closed display:none. */
+.pop {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: 232px;
+  max-width: calc(100vw - 24px);
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-dropdown);
+}
+
+.pop:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100dvh - 70px);
+  overflow-y: auto;
+  animation: hb-pop-in var(--transition-fast);
+}
+
+@keyframes hb-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.popHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.popTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.showAll {
+  padding: 2px 4px;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  border-radius: var(--radius-xs);
+  transition: color var(--transition-fast);
+}
+
+.showAll:hover {
+  color: var(--accent-strong);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* rows on the surface popover hover to surface-2 (MonRow-style token) */
+  --row-hover: var(--surface-2);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 6px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  text-align: left;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.item:hover {
+  background: var(--surface-2);
+  transform: translateX(2px);
+}
+
+.itemName {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.restore {
+  flex-shrink: 0;
+  color: var(--text-mute);
+  font-size: var(--fs-md);
+  transition: color var(--transition-fast);
+}
+
+.item:hover .restore {
+  color: var(--accent);
+}
+
+@media (pointer: coarse) {
+  .trigger {
+    padding: 9px 12px;
+    font-size: var(--fs-sm);
+  }
+  .pop {
+    width: min(272px, calc(100vw - 24px));
+  }
+  .item {
+    min-height: 40px;
+  }
+  .showAll {
+    min-height: 32px;
+    padding: 4px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop:popover-open {
+    animation: none;
+  }
+}

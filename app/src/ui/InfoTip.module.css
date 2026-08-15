@@ -1,0 +1,98 @@
+.trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.trigger:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.pop {
+  position: fixed;
+  inset: auto; /* reset the UA popover's centering so left/top (set in JS) apply */
+  margin: 0;
+  width: max-content;
+  max-width: 250px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-dropdown);
+  color: var(--text-dim);
+  font-size: var(--fs-2xs);
+  line-height: 1.5;
+}
+
+/* Multi-paragraph help content: no default margins, even spacing between blocks. */
+.pop :global(p) {
+  margin: 0;
+}
+
+.pop > * + * {
+  margin-top: 8px;
+}
+
+/* Foot-of-bubble call to action (e.g. "Open settings →"). */
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.action:hover {
+  text-decoration: underline;
+}
+
+/* A quiet fade/rise on open; degrades to an instant show where unsupported, and
+   the global reduced-motion rule flattens it. */
+.pop {
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    overlay var(--transition-fast) allow-discrete,
+    display var(--transition-fast) allow-discrete;
+}
+
+.pop:popover-open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  .pop:popover-open {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Comfortable touch target for the help affordance. */
+@media (pointer: coarse) {
+  .trigger {
+    width: 26px;
+    height: 26px;
+    font-size: var(--fs-sm);
+  }
+}

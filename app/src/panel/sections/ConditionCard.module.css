@@ -1,0 +1,62 @@
+.card {
+  margin: 12px 16px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Title row: the section heading with the near-universal Agent-rank badge parked
+   at its right edge, out of the wrapping requirement pills below. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* extends the global `.label` utility — accented section heading */
+.title {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.6px;
+  color: var(--accent);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.partners {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* extends the global `.label` utility */
+.partnerLabel {
+  color: var(--jogress);
+}
+
+/* The personality-match discount: a modifier on the requirements above, not a
+   hard requirement itself, so it sits apart from the pills with its own label. */
+.persona {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* extends the global `.label` utility */
+.personaLabel {
+  color: var(--text-dim);
+}
+
+.caption {
+  margin-top: 8px;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}

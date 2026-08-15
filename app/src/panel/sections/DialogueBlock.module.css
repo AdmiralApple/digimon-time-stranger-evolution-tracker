@@ -1,0 +1,36 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.digimon,
+.player {
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+/* Speaker is conveyed by a full tinted border + accented speaker label. */
+.digimon {
+  background: var(--surface-2);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.digimon .speaker {
+  color: var(--accent);
+}
+
+.player {
+  background: transparent;
+  border: 1px dashed var(--border);
+  margin-left: 16px;
+}
+
+/* extends the global `.label` utility */
+.speaker {
+  display: block;
+  font-size: var(--fs-2xs);
+  margin-bottom: 2px;
+}

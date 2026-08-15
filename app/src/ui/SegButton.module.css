@@ -1,0 +1,55 @@
+.btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-display);
+  white-space: nowrap;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--dur-press) var(--ease-out-quart);
+}
+
+.btn:hover {
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
+  color: var(--text);
+}
+
+/* tactile press — the whole toolbar shares this one feedback */
+.btn:active {
+  transform: scale(0.96);
+}
+
+.active {
+  border-color: color-mix(in oklab, var(--accent) 70%, var(--border));
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.sm {
+  padding: 4px 10px;
+  font-size: var(--fs-xs);
+}
+
+.md {
+  padding: 5px 12px;
+  font-size: var(--fs-sm);
+}
+
+/* Touch: guarantee a 44px tap target while keeping the compact desktop look. */
+@media (pointer: coarse) {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .sm {
+    padding-inline: 14px;
+  }
+  .md {
+    padding-inline: 16px;
+  }
+}

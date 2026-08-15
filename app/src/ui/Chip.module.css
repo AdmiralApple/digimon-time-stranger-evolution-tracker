@@ -1,0 +1,36 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 17px;
+  color: var(--text-dim);
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* Coloured chip: the hue reads via a tinted fill + border; the label stays
+   --text so it's legible in both themes (colour is never the sole channel). */
+.tinted {
+  --chip-color: var(--accent);
+  border-color: color-mix(in oklab, var(--chip-color) 55%, var(--border));
+  background: color-mix(in oklab, var(--chip-color) 15%, transparent);
+  color: var(--text);
+}
+
+.clickable {
+  transition: background var(--transition-fast);
+}
+
+.clickable:hover {
+  background: var(--surface-2);
+}
+
+.tinted.clickable:hover {
+  background: color-mix(in oklab, var(--chip-color) 26%, transparent);
+}

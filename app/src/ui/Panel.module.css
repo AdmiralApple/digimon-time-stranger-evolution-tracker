@@ -1,0 +1,35 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-width);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+
+.close {
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  transition: color var(--transition-fast);
+}
+
+.close:hover {
+  color: var(--text);
+}
+
+/* Touch: a full 44px hit area for the panel dismiss. */
+@media (pointer: coarse) {
+  .close {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -6px -8px -6px 0; /* absorb the larger target without shifting the header */
+    padding: 0;
+    font-size: var(--fs-input);
+  }
+}

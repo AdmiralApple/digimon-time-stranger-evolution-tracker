@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Explore the full evolution network of Digimon Story: Time Stranger — search, filter, focus a lineage, and plan evolution routes."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%2314110d%22/><path d=%22M30 64 L60 38%22 stroke=%22%23f5b845%22 stroke-width=%227%22 stroke-linecap=%22round%22/><circle cx=%2230%22 cy=%2264%22 r=%2210%22 fill=%22%23f5b845%22/><circle cx=%2264%22 cy=%2234%22 r=%2215%22 fill=%22%23f5b845%22/></svg>"
+    />
+    <title>Time Stranger Tree</title>
+    <script>
+      // Set the chrome theme before first paint to avoid a flash.
+      (function () {
+        try {
+          var t = localStorage.getItem('tst.theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          }
+          var r = document.documentElement;
+          r.setAttribute('data-theme', t);
+          r.style.background = t === 'light' ? '#f3f1ed' : '#201e1b';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

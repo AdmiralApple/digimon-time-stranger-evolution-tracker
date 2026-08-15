@@ -1,0 +1,39 @@
+{
+  "name": "time-stranger-tree",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive evolution-tree explorer for Digimon Story: Time Stranger",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "data:sync": "node scripts/sync-data.mjs",
+    "layout": "node scripts/build-layout.mjs",
+    "predev": "npm run data:sync",
+    "prebuild": "npm run data:sync"
+  },
+  "dependencies": {
+    "@fontsource/chakra-petch": "^5.2.7",
+    "@fontsource/hanken-grotesk": "^5.2.8",
+    "aes-js": "^3.1.2",
+    "cytoscape": "^3.34.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/aes-js": "^3.1.4",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "elkjs": "^0.11.1",
+    "playwright": "^1.61.1",
+    "sharp": "^0.35.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4",
+    "vitest": "^4.1.10"
+  }
+}

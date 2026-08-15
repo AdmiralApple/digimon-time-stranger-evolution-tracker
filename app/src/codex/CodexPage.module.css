@@ -1,0 +1,688 @@
+/* =============================================================================
+   Codex — a flat, sortable table of every Digimon.
+   Quiet warm-graphite stage like the rest of the app: rows on --bg, a --surface
+   toolbar + frozen header, accent reserved for the active sort + total bars.
+   ============================================================================= */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg);
+}
+
+/* -----------------------------------------------------------------------------
+   Toolbar: search · level · count on top; generation + attribute filters below.
+   ----------------------------------------------------------------------------- */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 11px max(14px, env(safe-area-inset-right)) 11px max(16px, env(safe-area-inset-left));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: var(--z-toolbar);
+}
+
+.toolbarTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search {
+  flex: 1 1 220px;
+  max-width: 340px;
+  min-width: 0;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+.search::placeholder {
+  color: var(--text-mute);
+}
+.search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-faint);
+}
+
+/* Lv.1 / Lv.99 uses the shared ui/LevelToggle. */
+
+.tail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.count {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+}
+.count strong {
+  color: var(--text);
+  font-weight: 700;
+}
+.clear {
+  padding: 4px 12px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-family: var(--font-display);
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+.clear:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Filter chip groups use the shared ui/FilterChip (same as the graph FilterBar).
+   Desktop: the two groups sit inline and the toggle is hidden. Phone: a "Filters"
+   toggle collapses the groups to reclaim vertical space (see the 639px block). */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filterGroups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+/* Phone-only disclosure control + its collapsed active-filter summary. */
+.filterToggle {
+  display: none; /* shown on phones */
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 2px;
+  background: none;
+  border: none;
+  text-align: left;
+}
+.chevron {
+  flex: none;
+  font-size: var(--fs-micro);
+  line-height: 1;
+  color: var(--text-mute);
+  transition: color var(--transition-fast);
+}
+.filterToggle:hover .chevron,
+.filterToggle[aria-expanded='true'] .chevron {
+  color: var(--text);
+}
+.filterToggleLabel {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.filterToggle:hover .filterToggleLabel {
+  color: var(--text);
+}
+/* Applied facets, summarised inline while collapsed. Clips gracefully if the few
+   shown chips still overrun a very narrow screen. */
+.summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+.sumChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sumDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text) 16%, transparent);
+}
+.sumMore {
+  flex: none;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -----------------------------------------------------------------------------
+   Advanced filters — an opt-in disclosure below the everyday name/gen/attribute
+   controls: filter by special-skill element/effect, and by resistance profile.
+   A quiet zone set off by a hairline; it reveals with a height morph (the global
+   reduced-motion rule snaps it).
+   ----------------------------------------------------------------------------- */
+.advanced {
+  border-top: 1px solid var(--border);
+  padding-top: 9px;
+}
+
+/* Disclosure control — reuses the phone .filterToggle's chevron + label type,
+   but is shown on every viewport (these facets are advanced everywhere). */
+.advToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  /* Reserve the height of the with-badge state (the 17px count pill + padding) so
+     the badge appearing/disappearing never grows the row and nudges the panel
+     below it down. The coarse-pointer rule below raises this for touch. */
+  min-height: 23px;
+  padding: 3px 2px;
+  background: none;
+  border: none;
+  text-align: left;
+}
+.advToggle:hover .chevron,
+.advToggle[aria-expanded='true'] .chevron,
+.advToggle:hover .filterToggleLabel {
+  color: var(--text);
+}
+
+/* Count of active advanced constraints — keeps the collapsed panel honest. */
+.advCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Height morph via 0fr → 1fr (no magic number). The overflow wrapper collapses
+   cleanly with no padding of its own; padding lives on .advContent so focus
+   rings aren't clipped when open. */
+.advPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition);
+}
+.advPanel[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+.advInner {
+  min-height: 0;
+  overflow: hidden;
+}
+/* With every facet expanded (Trait + Base personality's four bond groups +
+   Special skill + Attack type + Resistance) the panel can outgrow a short
+   viewport. The toolbar doesn't scroll, so cap the open panel to a slice of the
+   viewport and let the facets scroll within — every filter stays reachable. */
+.advPanel[data-open='true'] .advInner {
+  overflow-y: auto;
+  max-height: min(56dvh, 480px);
+  overscroll-behavior: contain;
+}
+.advContent {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 12px 6px 6px;
+}
+
+/* Special-skill sub-block: a full-line heading over two inline sub-facets
+   (Element, Skill type), matching the other advanced sections' block header. */
+.skillBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Base-personality sub-block: heading, then the four bond groups (shared
+   ui/PersonalityGroups, same as the Tree popover). */
+.personalityBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Resistances sub-block: heading + legend, then the elemental / attribute rows. */
+.resistBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.resistHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.resistRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.resistHint {
+  font-size: var(--fs-2xs);
+  color: var(--text-mute);
+}
+.hintResist {
+  color: var(--resist);
+  font-weight: 700;
+}
+.hintWeak {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* Tri-state resistance chip — mirrors ui/FilterChip's pill, plus green/red
+   resist/weak states that speak the detail-panel ResistanceGrid's language
+   (▼ resists · ▲ weak). At rest: a centred label with generous symmetric padding.
+   When active, the horizontal padding tightens by exactly the marker's width + gap
+   (9 + 3 = 12px, i.e. 6px off each side), so the marker slots in on the left and
+   the chip keeps a constant width — the row never reflows, with no lopsided gap at
+   rest and no wasted space on the right when active. */
+.triChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+.triChip[data-state='resist'],
+.triChip[data-state='weak'] {
+  padding-inline: 8px;
+}
+.triMark {
+  flex: none;
+  width: 9px;
+  margin-right: 3px;
+  text-align: center;
+  font-size: var(--fs-micro);
+  line-height: 1;
+}
+.triChip[data-state='off']:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.triChip[data-state='resist'] {
+  color: var(--resist);
+  border-color: color-mix(in oklab, var(--resist) 55%, var(--border));
+  background: color-mix(in oklab, var(--resist) 15%, transparent);
+}
+.triChip[data-state='resist']:hover {
+  background: color-mix(in oklab, var(--resist) 22%, transparent);
+}
+.triChip[data-state='weak'] {
+  color: var(--danger);
+  border-color: color-mix(in oklab, var(--danger) 55%, var(--border));
+  background: color-mix(in oklab, var(--danger) 15%, transparent);
+}
+.triChip[data-state='weak']:hover {
+  background: color-mix(in oklab, var(--danger) 22%, transparent);
+}
+
+@media (pointer: coarse) {
+  .clear {
+    min-height: 36px;
+  }
+  .search {
+    min-height: 44px;
+    font-size: var(--fs-input); /* ≥16px so iOS doesn't zoom on focus */
+  }
+  .advToggle {
+    min-height: 40px;
+  }
+  .triChip {
+    min-height: 36px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Table — the scroll container owns both axes; header + first columns freeze.
+   ----------------------------------------------------------------------------- */
+.tableWrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.table {
+  --num-w: 52px;
+  width: 100%;
+  min-width: 860px; /* below this the stat block scrolls under the frozen name */
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Header cells: frozen to the top, quiet font-display labels. */
+.th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-strong);
+  text-align: left;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.thNumeric {
+  text-align: right;
+}
+.thActive {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.sortBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: inherit;
+  transition: color var(--transition-fast);
+}
+.thNumeric .sortBtn {
+  justify-content: flex-end;
+}
+.sortBtn:hover {
+  color: var(--text);
+}
+.thActive .sortBtn {
+  color: var(--accent);
+}
+.arrow {
+  display: inline-block;
+  min-width: 8px;
+  font-size: var(--fs-micro);
+  line-height: 1;
+}
+
+/* Body cells. */
+.cell {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.numeric {
+  text-align: right;
+}
+.gen,
+.attr {
+  color: var(--text-dim);
+}
+
+/* Active-sort column: a whisper of accent so the eye tracks the sorted values. */
+.sortedCell {
+  background: var(--accent-faint);
+}
+
+/* Whole row is a click target; the name button is the focusable action. */
+.row {
+  cursor: pointer;
+}
+.row:hover .cell {
+  background: var(--surface-2);
+}
+.row:hover .nameText {
+  color: var(--accent);
+}
+
+.nameBtn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text);
+  text-align: left;
+}
+/* Sprite + its phone-only attribute badge. */
+.portrait {
+  position: relative;
+  flex: none;
+  line-height: 0;
+}
+/* Placeholder tint behind the shared Sprite while the thumbnail lazy-loads. */
+.sprite {
+  background: var(--surface-2);
+}
+/* Attribute colour as a badge on the portrait. Hidden by default (the Attribute
+   column carries it); shown on phones where that column is dropped. */
+.attrBadge {
+  display: none;
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px var(--bg);
+}
+.nameText {
+  display: block;
+  min-width: 0;
+  max-width: 15rem;
+  overflow: hidden;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.attrDot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 7px;
+  border-radius: 3px;
+  vertical-align: -1px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text) 16%, transparent);
+}
+
+/* Total: number over a normalized strength bar (shares the StatBars language). */
+.totalCell {
+  min-width: 92px;
+}
+.totalVal {
+  display: block;
+  font-weight: 700;
+}
+.totalTrack {
+  display: block;
+  height: 3px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.totalFill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left center;
+  /* No transition: the table is unvirtualized, so animating the fill would run
+     one transform transition per row (475+) on every level toggle / re-sort — a
+     frame-rate hit on low-end hardware. The bar reads fine snapping to width. */
+}
+
+/* Frozen first columns (# + Digimon). Opaque so the stat block scrolls under
+   them; a hairline right edge delineates the frozen zone. */
+.stickyNum,
+.stickyName {
+  position: sticky;
+  background: var(--bg);
+}
+.stickyNum {
+  left: 0;
+  width: var(--num-w);
+  min-width: var(--num-w);
+}
+.stickyName {
+  left: var(--num-w);
+  border-right: 1px solid var(--border);
+}
+/* z-stack: header corner > header row / frozen body > frozen header bg. */
+tbody .stickyNum,
+tbody .stickyName {
+  z-index: 2;
+}
+.th.stickyNum,
+.th.stickyName {
+  z-index: 5;
+  background: var(--surface);
+}
+/* keep the hover + sorted tints on the frozen cells too (opaque, not see-through) */
+.row:hover .stickyNum,
+.row:hover .stickyName {
+  background: var(--surface-2);
+}
+
+/* -----------------------------------------------------------------------------
+   Empty state
+   ----------------------------------------------------------------------------- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 56px 24px;
+  text-align: center;
+}
+.emptyTitle {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+}
+.emptyClear {
+  padding: 7px 16px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  transition: background var(--transition-fast);
+}
+.emptyClear:hover {
+  background: var(--accent-strong);
+}
+
+@media (max-width: 559px) {
+  /* Narrow phones: the filter field takes its own line so the Lv toggle + count
+     wrap cleanly beneath it instead of clipping off the right edge. */
+  .search {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 639px) {
+  /* Phone: the stats ARE the table, so hand them the width budget. The Gen +
+     Attribute columns are dropped (both still live in the filter chips above and
+     the detail panel; attribute survives as the portrait badge), the frozen
+     #/name zone is slimmed, and the numeric grid tightens — so scrolling right
+     lands you in stats immediately instead of chrome. */
+  .table {
+    --num-w: 44px;
+    min-width: 500px;
+  }
+  .optional {
+    display: none;
+  }
+  .attrBadge {
+    display: block;
+  }
+
+  .cell {
+    padding: 6px 9px;
+  }
+  .numeric {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+  .sortBtn {
+    padding: 8px 9px;
+  }
+  .thNumeric .sortBtn {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+  .totalCell {
+    min-width: 60px;
+  }
+  .nameText {
+    max-width: 104px;
+    font-size: var(--fs-sm);
+  }
+
+  /* Collapse the filter chip groups behind the toggle. */
+  .filterToggle {
+    display: flex;
+    min-height: 36px;
+  }
+  .filterGroups[data-open='false'] {
+    display: none;
+  }
+}

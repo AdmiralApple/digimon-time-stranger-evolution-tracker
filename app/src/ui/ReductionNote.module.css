@@ -1,0 +1,12 @@
+.note {
+  margin: 8px 0 0;
+  font-size: var(--fs-2xs);
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.glyph {
+  color: var(--bond);
+  margin-right: 4px;
+  font-weight: 700;
+}

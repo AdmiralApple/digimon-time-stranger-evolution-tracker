@@ -1,0 +1,267 @@
+/* =============================================================================
+   Time Stranger Tree — chromatic identity
+   Colour comes from the Digimon, not the chrome. The neutrals are a quiet warm
+   stage; the accent ramp is repainted with the selected sprite's signature hue
+   (--accent-h / --accent-c set from JS). Lightness is owned by the theme, so
+   the same accent reads correctly in light and dark.
+   ============================================================================= */
+
+/* Typed accent channels so the whole UI can *morph* into the selected Digimon's
+   signature hue instead of snapping. Registration is what makes hue/chroma
+   animatable (a plain custom property can't be interpolated). The morph itself
+   is the `transition` on :root below; reduced-motion neutralises it via the
+   global rule at the foot of this file. */
+@property --accent-h {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 72;
+}
+@property --accent-c {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.12;
+}
+
+:root {
+  /* -- Chromatic accent (hue+chroma swapped per selection; default: temporal amber) -- */
+  --accent-h: 72;
+  --accent-c: 0.12;
+  --accent-l: 0.8; /* dark default; light theme lowers it */
+  --accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  --accent-strong: oklch(var(--accent-l) calc(var(--accent-c) + 0.04) var(--accent-h));
+  --accent-ink: oklch(0.2 0.03 var(--accent-h)); /* text on an accent fill */
+  --accent-soft: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.16);
+  --accent-faint: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.09);
+  --accent-line: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.55);
+  --focus-ring: oklch(var(--accent-l) calc(var(--accent-c) + 0.02) var(--accent-h));
+
+  /* -- Neutrals: dark (default). Warm graphite, near-zero chroma. -- */
+  --bg: oklch(0.16 0.006 66);
+  --surface: oklch(0.205 0.007 66);
+  --surface-2: oklch(0.255 0.008 66);
+  --border: oklch(0.32 0.009 66);
+  --border-strong: oklch(0.4 0.011 66);
+  --text: oklch(0.95 0.004 75);
+  --text-dim: oklch(0.745 0.008 72);
+  --text-mute: oklch(0.64 0.008 72); /* ≥4.5:1 on surface-2 for the small muted labels (WCAG AA) */
+
+  /* -- "Digital World" graph viewport + its floating legend chip. Themed:
+        night (dark) below, daylight parchment in the light override. Keep
+        --graph-bg in step with GRAPH_PALETTES.bg (attribute.ts) so the node
+        label plates blend into the canvas. -- */
+  --graph-bg: oklch(0.145 0.008 66);
+  --legend-bg: oklch(0.145 0.008 66 / 0.82);
+
+  /* -- Semantic + domain accents -- */
+  --danger: oklch(0.68 0.19 25);
+  --resist: oklch(0.72 0.15 150);
+  --item: oklch(0.76 0.16 58);
+  --jogress: oklch(0.66 0.19 305);
+  --bond: oklch(0.74 0.11 215);
+
+  /* -- Type: one humanist family, hierarchy by weight; a squared "digital"
+        face carries the game identity in the wordmark + splash (never data) -- */
+  --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-brand: 'Chakra Petch', 'Hanken Grotesk', system-ui, sans-serif;
+
+  /* -- Type scale. A dense product UI legitimately needs more steps than a brand
+        page, but not the ~17 near-duplicate literals that had accreted (8.5 / 9.5 /
+        11.5 / 12.5 / 13.5 twins). One documented scale; hierarchy still by weight.
+        --fs-input stays at the iOS no-zoom threshold (16px) on form fields. -- */
+  --fs-micro: 9px; /* uppercase group labels, legend, tiny meta */
+  --fs-2xs: 10.5px; /* captions, hints, dense meta rows */
+  --fs-xs: 11px; /* chips, filter labels, compact controls */
+  --fs-sm: 12px; /* dense body: table cells, buttons, requirement text */
+  --fs-md: 13px; /* secondary prose: descriptions, search, dialogue */
+  --fs-base: 14px; /* body */
+  --fs-lg: 15px; /* section emphasis, small headings */
+  --fs-input: 16px; /* form fields — at/above the iOS zoom threshold */
+  --fs-xl: 17px; /* panel + app title, detail name */
+  --fs-2xl: 21px; /* the empty-panel display headline */
+
+  /* -- Metrics -- */
+  --panel-width: 384px;
+  --topbar-height: 54px;
+
+  --radius-xs: 4px;
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --radius: var(--radius-md);
+
+  --shadow-dropdown: 0 12px 32px oklch(0.08 0.01 66 / 0.6);
+  --shadow-panel: -10px 0 30px oklch(0.08 0.01 66 / 0.32);
+
+  --z-overlay: 10;
+  --z-toolbar: 15;
+  --z-topbar: 20;
+  --z-panel: 40; /* the mobile drawer / bottom sheet, over the graph */
+  --z-view: 45; /* a full-surface view (Codex) covering the graph + panel */
+  --z-dropdown: 100;
+
+  --transition-fast: 130ms cubic-bezier(0.22, 0.7, 0.28, 1);
+  --transition: 220ms cubic-bezier(0.22, 0.7, 0.28, 1);
+
+  /* -- Motion: expressive ease-out curves + a duration scale. The two
+        --transition tokens above keep the chrome calm; these drive the
+        moments that should feel alive (accent morph, stat fills, entrances). -- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-press: 110ms;
+  --dur-1: 200ms;
+  --dur-2: 320ms;
+  --dur-3: 480ms;
+
+  /* The chromatic hero: when --accent-h / --accent-c are repainted from the
+     selected sprite (chroma.ts), the whole accent ramp sweeps to the new hue
+     rather than cutting. Kept brisk so it reads as a "charge", not a lag. */
+  transition:
+    --accent-h var(--dur-2) var(--ease-out-quart),
+    --accent-c var(--dur-2) var(--ease-out-quart);
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --accent-l: 0.56;
+  --accent-ink: oklch(0.99 0.01 var(--accent-h));
+  --accent-soft: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.13);
+  --accent-faint: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.07);
+
+  --bg: oklch(0.955 0.003 85);
+  --surface: oklch(0.995 0.001 85);
+  --surface-2: oklch(0.925 0.005 85);
+  --border: oklch(0.87 0.006 85);
+  --border-strong: oklch(0.77 0.009 80);
+  --text: oklch(0.26 0.012 55);
+  --text-dim: oklch(0.46 0.013 60);
+  --text-mute: oklch(0.5 0.013 60); /* ≥4.5:1 on the light surfaces for small muted labels (WCAG AA) */
+
+  --danger: oklch(0.55 0.2 25);
+  --resist: oklch(0.52 0.15 150);
+  --item: oklch(0.58 0.16 58);
+  --jogress: oklch(0.5 0.19 305);
+  --bond: oklch(0.52 0.12 215);
+
+  --shadow-dropdown: 0 12px 32px oklch(0.55 0.02 66 / 0.2);
+  --shadow-panel: -10px 0 30px oklch(0.55 0.02 66 / 0.12);
+
+  /* daylight parchment stage — matches GRAPH_PALETTES.light.bg */
+  --graph-bg: oklch(0.925 0.012 85);
+  --legend-bg: oklch(0.99 0.006 85 / 0.82);
+
+  color-scheme: light;
+}
+
+/* Smooth the light↔dark swap: theme.ts opens a short `data-theming` window on
+   toggle during which descendant surface / border / text colours cross-fade
+   instead of hard-snapping. Scoped to descendants so :root's own accent-hue morph
+   transition is left intact, and paid only during the toggle (not on every hover).
+   The theme.ts guard means this window never opens under reduced motion. */
+:root[data-theming] * {
+  transition-property: background-color, border-color, color, fill !important;
+  transition-duration: var(--dur-2) !important;
+  transition-timing-function: var(--ease-out-quart) !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Dynamic viewport unit so a phone's collapsing URL bar never hides the graph's
+   bottom edge (where the legend and the bottom sheet live). Falls back to the
+   100% above where dvh is unsupported. */
+#root {
+  height: 100dvh;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* the graph owns all gestures — kill page-level pull-to-refresh / rubber-band */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+/* Shared type style: quiet uppercase group label (font-display kicker).
+   Colour/size/margin are overridden by the co-located module class. */
+.label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+}
+
+/* One tokenised focus ring for every interactive element. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+  background-clip: padding-box;
+}
+* {
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important; /* neutralise looping idle motion */
+    scroll-behavior: auto !important;
+  }
+}

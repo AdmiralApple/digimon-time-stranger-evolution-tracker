@@ -1,0 +1,79 @@
+/* Filter facet group: a small-caps label followed by its chips. */
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.groupLabel {
+  margin-right: 3px;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.7px;
+  color: var(--text-mute);
+}
+
+/* Block variant: a full-line `.label` header above a wrapping chip row (Codex
+   advanced facets), so every section there shares the same header treatment. */
+.groupBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.blockChips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+/* A pill toggle. --chip-color tints hover / active (defaults to the accent). */
+.chip,
+.chipActive {
+  --chip-color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-family: var(--font-display);
+  white-space: nowrap;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.chip:hover {
+  border-color: color-mix(in oklab, var(--chip-color) 60%, var(--border));
+  color: var(--text);
+}
+
+.chipActive {
+  border-color: color-mix(in oklab, var(--chip-color) 62%, var(--border));
+  background: color-mix(in oklab, var(--chip-color) 16%, transparent);
+  color: var(--text);
+}
+
+/* Leading colour swatch (attribute chips). */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text) 16%, transparent);
+}
+
+/* Touch: roomier tap target. */
+@media (pointer: coarse) {
+  .chip,
+  .chipActive {
+    min-height: 36px;
+    padding: 7px 14px;
+  }
+}

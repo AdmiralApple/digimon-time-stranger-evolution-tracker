@@ -1,0 +1,6 @@
+.sprite {
+  display: inline-block;
+  background-repeat: no-repeat;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+}

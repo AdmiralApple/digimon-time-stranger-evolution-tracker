@@ -1,0 +1,60 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* extends the global `.label` utility */
+.groupLabel {
+  margin-top: 4px;
+}
+
+.skill {
+  padding: 6px 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.name {
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+.element {
+  font-size: var(--fs-2xs);
+  color: var(--accent);
+}
+
+/* Attack type (magic / physical) — quiet companion to the accent element word;
+   text-only and neutral so it reads as metadata, not a second colour system.
+   --text-dim (not --text-mute) to clear AA on the small label over the card. */
+.type {
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
+.level {
+  margin-left: auto;
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
+}
+
+.numbers {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0;
+}
+
+.desc {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  line-height: 1.45;
+}

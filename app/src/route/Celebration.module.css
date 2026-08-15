@@ -1,0 +1,101 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-overlay);
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    130% 70% at 50% 100%,
+    color-mix(in oklab, var(--cel) 26%, transparent),
+    transparent 62%
+  );
+  animation: glow 2.4s ease-out forwards;
+}
+
+.toast {
+  position: absolute;
+  bottom: 78px;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: oklch(0.16 0.008 66 / 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in oklab, var(--cel) 55%, var(--border));
+  border-radius: var(--radius-pill);
+  color: oklch(0.96 0.004 75);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-md);
+  white-space: nowrap;
+  box-shadow: 0 8px 30px color-mix(in oklab, var(--cel) 32%, transparent);
+  animation: pop 2.4s cubic-bezier(0.22, 0.7, 0.28, 1) forwards;
+}
+
+.star {
+  color: var(--cel);
+  font-size: var(--fs-lg);
+}
+
+@keyframes glow {
+  0% {
+    opacity: 0;
+  }
+  16% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.96);
+  }
+  12% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  82% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px) scale(1);
+  }
+}
+
+/* On phones the route panel is a bottom sheet — surface the toast up top where
+   it clears the sheet instead of hiding behind it. */
+@media (max-width: 639px) {
+  .toast {
+    bottom: auto;
+    top: max(64px, calc(env(safe-area-inset-top) + 60px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    display: none;
+  }
+  /* No CSS animation to convey the hold — the global reduced-motion rule zeroes
+     animation-duration, which would drop the toast to its final (opacity 0) frame
+     and make the celebration invisible. Show it statically instead; the component's
+     own 2.4s timeout unmounts it. */
+  .toast {
+    animation: none;
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}

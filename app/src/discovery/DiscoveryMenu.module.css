@@ -1,0 +1,312 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Icon trigger, keyed to the gear/theme buttons in the same cluster. */
+.trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--dur-press);
+}
+.trigger:hover,
+.triggerOpen {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.trigger:active {
+  transform: scale(0.92);
+}
+.icon {
+  display: grid;
+  place-items: center;
+}
+/* A save is loaded + fog is on: a small accent pip, so the quiet icon still
+   signals the guide is live without crowding the bar with numbers. */
+.statusDot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+
+/* Native popover, positioned in JS under the trigger. `display` is set only on
+   :popover-open so this never overrides the UA display:none of a closed popover. */
+.pop {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: 300px;
+  max-width: calc(100vw - 16px);
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-dropdown);
+}
+.pop:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(100dvh - 70px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: pop-in var(--transition-fast);
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.player {
+  font-size: var(--fs-2xs);
+  color: var(--text-mute);
+}
+
+/* Progress: one meter showing registered ⊆ discovered ⊆ 475, in the borrowed
+   accent (no invented hue), read out numerically below so colour is never alone. */
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.meter {
+  position: relative;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.meterSeen,
+.meterReg {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-2) var(--ease-out-quart);
+}
+.meterSeen {
+  background: var(--accent-soft);
+}
+.meterReg {
+  background: var(--accent);
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sw {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+}
+.swReg {
+  background: var(--accent);
+}
+.swSeen {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+.legendNum {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.legendTotal {
+  color: var(--text-mute);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldLabel {
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.hint {
+  font-size: var(--fs-2xs);
+  line-height: 1.4;
+  color: var(--text-mute);
+}
+.path {
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border-radius: var(--radius-xs);
+  padding: 1px 5px;
+}
+
+/* segmented two-way controls — identical to the Settings menu's */
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.segBtn,
+.segActive {
+  padding: 5px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+.segBtn:hover {
+  color: var(--text);
+}
+.segActive {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+
+.importBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--dur-press);
+}
+.importBtn:hover {
+  border-color: var(--accent);
+  background: var(--accent-faint);
+}
+.importBtn:active {
+  transform: scale(0.98);
+}
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.msgOk {
+  font-size: var(--fs-2xs);
+  line-height: 1.4;
+  color: var(--accent);
+}
+.msgErr {
+  font-size: var(--fs-2xs);
+  line-height: 1.4;
+  color: var(--danger);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.footNote {
+  font-size: var(--fs-micro);
+  color: var(--text-mute);
+}
+.clear {
+  border: none;
+  background: none;
+  color: var(--text-mute);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+.clear:hover {
+  color: var(--danger);
+}
+
+@media (pointer: coarse) {
+  .trigger {
+    width: 44px;
+    height: 44px;
+  }
+  .pop {
+    width: min(300px, calc(100vw - 24px));
+  }
+  .segBtn,
+  .segActive {
+    min-height: 40px;
+  }
+  .importBtn {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop:popover-open {
+    animation: none;
+  }
+  .meterSeen,
+  .meterReg {
+    transition: none;
+  }
+}

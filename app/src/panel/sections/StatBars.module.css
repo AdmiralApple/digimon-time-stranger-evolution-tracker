@@ -1,0 +1,46 @@
+/* Spacing below the shared LevelToggle (ui/LevelToggle) before the bars. */
+.toggleGap {
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0;
+}
+
+.stat {
+  width: 32px;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.track {
+  flex: 1;
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  border-radius: 4px;
+  /* The fill level is a scaleX (0–1), not a width, so it stays on the compositor
+     — no layout thrash when bars grow on open or morph between Digimon / levels.
+     A small per-row stagger (--i) makes it read as a sweep down the block. */
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left center;
+  transition: transform var(--dur-3) var(--ease-out-expo) calc(var(--i, 0) * 30ms);
+}
+
+.value {
+  width: 42px;
+  text-align: right;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}

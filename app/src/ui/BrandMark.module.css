@@ -1,0 +1,51 @@
+/* The wordmark glyph animated as an evolution: the small form grows in, a line
+   of energy draws toward the next stage, then the larger form materialises —
+   then the whole mark breathes a soft accent glow while the app loads. */
+.animated {
+  animation: breathe 3s ease-in-out 1200ms infinite;
+}
+
+.small {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 420ms var(--ease-out-quint) 60ms both;
+}
+
+.link {
+  stroke-dasharray: 44;
+  stroke-dashoffset: 44;
+  animation: draw 500ms var(--ease-out-quart) 260ms both;
+}
+
+.big {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 460ms var(--ease-out-quint) 640ms both;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+}

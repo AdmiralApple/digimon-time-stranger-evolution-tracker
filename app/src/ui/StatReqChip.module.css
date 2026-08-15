@@ -1,0 +1,19 @@
+/* Original threshold, kept visible but quiet — the arrow, not a strikethrough,
+   carries the "reduced to" meaning, so the base just steps back in weight/tone. */
+.was {
+  color: var(--text-mute);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.arrow {
+  margin: 0 3px;
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.now {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

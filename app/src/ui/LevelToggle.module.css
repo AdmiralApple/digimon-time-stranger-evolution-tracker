@@ -1,0 +1,37 @@
+/* Lv.1 / Lv.99 pill toggle. */
+.toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.btn,
+.active {
+  padding: 4px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-family: var(--font-display);
+  white-space: nowrap;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.btn:hover {
+  color: var(--text);
+}
+
+.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .active {
+    min-height: 36px;
+  }
+}

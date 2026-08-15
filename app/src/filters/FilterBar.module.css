@@ -1,0 +1,51 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 9px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: var(--z-toolbar);
+}
+
+/* Chips + facet groups live in ui/FilterChip (shared with the Codex). */
+
+.tail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.count {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+}
+
+.clear {
+  padding: 3px 11px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.clear:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+@media (pointer: coarse) {
+  .clear {
+    min-height: 36px;
+  }
+}

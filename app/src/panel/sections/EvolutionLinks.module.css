@@ -1,0 +1,138 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 16px 12px;
+}
+
+/* extends the global `.label` utility */
+.label {
+  margin-bottom: 4px;
+}
+
+/* explicit "mode change" (reciprocal / switchable form) marker in the sub-line */
+.modeChange {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Evolves-to sub-line whose stat values are reduced by the player's Agent Skills:
+   shows base struck beside the reduced value (the chips' dual read) and wraps so
+   nothing is clipped. Led by the bond glyph so colour is never the sole signal. */
+.reduced {
+  display: block;
+  white-space: normal;
+  line-height: 1.45;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.reducedGlyph {
+  color: var(--bond);
+  font-weight: 700;
+}
+
+/* One stat block (label + base → reduced) stays on a single line; the line wraps
+   only at the separators between blocks. */
+.part {
+  white-space: nowrap;
+}
+
+.sep {
+  white-space: normal;
+}
+
+/* base → reduced, matching StatReqChip: quiet base, arrow carries the meaning,
+   reduced value bold and bright. No strikethrough. */
+.wasStat {
+  color: var(--text-mute);
+}
+
+.arrow {
+  margin: 0 3px;
+  color: var(--text-mute);
+}
+
+.nowStat {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Agent-rank requirement, sat quietly beside an evolves-to target's name (out of
+   the requirement sub-line, since nearly every evolution has one). */
+.rank {
+  margin-left: 6px;
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* base-personality tag on each evolution link */
+.persona {
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Prunable neighbour: the row + its trailing hide/restore toggle sit on one line.
+   The row flexes; the toggle keeps its size at the edge. */
+.neighbour {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.neighbourMon {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A branch that's currently hidden reads as dimmed — but the toggle stays at full
+   strength so its "restore" affordance is unmistakable. */
+.neighbourHidden .neighbourMon {
+  opacity: 0.5;
+}
+
+.pruneBtn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+  line-height: 1;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.pruneBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent-line);
+  background: var(--accent-faint);
+}
+
+/* Hidden state: the toggle is a pressed "restore" — filled with the live accent. */
+.pruneBtn[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+@media (pointer: coarse) {
+  .pruneBtn {
+    width: 40px;
+    height: 40px;
+  }
+}

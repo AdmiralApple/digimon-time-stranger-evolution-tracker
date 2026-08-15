@@ -1,0 +1,50 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 2px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--border);
+}
+
+.key {
+  font-size: var(--fs-micro);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.neutral {
+  color: var(--text-dim);
+}
+
+.resist {
+  color: var(--resist);
+  border-color: color-mix(in srgb, var(--resist) 40%, transparent);
+}
+
+.weak {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+}
+
+.immune {
+  color: var(--text);
+  background: var(--surface-2);
+}

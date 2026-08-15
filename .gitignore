@@ -1,0 +1,18 @@
+# Local reference clones — other authors' repositories, kept locally for
+# development reference only (they are separate git repos and are unlicensed /
+# "contact author" — not part of this project's published tree).
+/reference/
+/anamnesis-ref/
+
+# Personal save-derived data (the player's own in-game progress)
+/save_progress.json
+/save_progress_dan.json
+
+# Dependencies / build output (also covered by app/.gitignore)
+node_modules/
+dist/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.local

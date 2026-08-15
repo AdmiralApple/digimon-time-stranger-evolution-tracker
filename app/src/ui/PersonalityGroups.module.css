@@ -1,0 +1,134 @@
+/* The base-personality facet: four bond sections, each a "select all" header and
+   its four personality chips. Shared by the Tree popover and the Codex advanced
+   panel. Layout adapts to the container's width (see the @container rule): narrow
+   hosts stack; wide hosts lay each bond out as a row. */
+.root {
+  container-type: inline-size;
+}
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bond {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Bond header doubles as a "select all four" toggle. Quiet at rest; warms toward
+   the bond hue on hover, and fills when the whole bond is selected — so the ❖
+   system reads here the same as on the reduced-requirement chips. */
+.bondHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  padding: 3px 9px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  /* Normalized so the count ("n/4") appearing doesn't grow the pill's line box
+     and nudge the chips below it down (count inherits the body's 1.5 otherwise). */
+  line-height: 1;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+.bondHead:hover {
+  border-color: color-mix(in oklab, var(--bond) 60%, var(--border));
+  color: var(--text);
+}
+/* Some-but-not-all: a hairline of bond hue on the border marks partial coverage
+   without shouting; the count text carries the "n/4". */
+.bondHead[data-selection='some'] {
+  border-color: color-mix(in oklab, var(--bond) 45%, var(--border));
+  color: var(--text);
+}
+.bondHead[data-selection='all'] {
+  border-color: color-mix(in oklab, var(--bond) 62%, var(--border));
+  background: color-mix(in oklab, var(--bond) 16%, transparent);
+  color: var(--text);
+}
+
+.bondGlyph {
+  color: var(--bond);
+  font-size: var(--fs-xs);
+  line-height: 1;
+}
+.bondName {
+  line-height: 1;
+}
+.bondCount {
+  color: var(--bond);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+@media (pointer: coarse) {
+  .bondHead {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
+}
+
+/* Wide host (the Field Guide's advanced panel): arrange the four bond blocks side
+   by side instead of stacking them. `auto` columns (not `1fr`) size each block to
+   its own content and `justify-content: start` packs them left, so they stay a
+   natural width rather than each stretching to a quarter of the screen — any
+   leftover space sits once, on the far right. Each block keeps its header-over-
+   chips layout; a hairline rule separates the categories, centred between them by
+   equal padding on either side (the first block stays flush with the header
+   above). Four across on a desktop width, two on a mid width; the Tree popover's
+   container stays below the threshold and keeps the single stacked column. The two
+   ranges don't overlap, so the per-column nth-child rules never leak between them. */
+@container (min-width: 520px) and (max-width: 859.98px) {
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: start;
+    column-gap: 0;
+    row-gap: 18px;
+  }
+  .bond {
+    padding-inline: 18px;
+  }
+  .bond:nth-child(odd) {
+    padding-left: 0;
+  }
+  .bond:nth-child(even) {
+    border-left: 1px solid var(--border);
+  }
+}
+@container (min-width: 860px) {
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+    column-gap: 0;
+    row-gap: 16px;
+  }
+  .bond {
+    padding-inline: 18px;
+  }
+  .bond:nth-child(4n + 1) {
+    padding-left: 0;
+  }
+  .bond:not(:nth-child(4n + 1)) {
+    border-left: 1px solid var(--border);
+  }
+}
