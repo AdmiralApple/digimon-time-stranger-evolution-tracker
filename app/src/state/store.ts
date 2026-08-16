@@ -24,13 +24,19 @@ const PREFS_KEY = 'tst:prefs';
 interface Prefs {
   orientation: Orientation;
   graphOrder: GraphOrder;
+  centerSelectedLinks: boolean;
+  showGrid: boolean;
+  showPathGhosts: boolean;
   hideOthers: boolean;
   /** Owned Bond Agent-Skill stacks (0..4 each) used to preview reduced stat reqs. */
   agentSkills: AgentSkillStacks;
 }
 const DEFAULT_PREFS: Prefs = {
   orientation: 'rows',
-  graphOrder: 'connections',
+  graphOrder: 'original',
+  centerSelectedLinks: false,
+  showGrid: false,
+  showPathGhosts: false,
   hideOthers: true,
   agentSkills: EMPTY_AGENT_SKILLS,
 };
@@ -51,12 +57,21 @@ function loadPrefs(): Prefs {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
     if (!raw) return DEFAULT_PREFS;
-    const p = JSON.parse(raw) as Partial<Prefs> & { focusHides?: boolean };
+    const p = JSON.parse(raw) as Omit<Partial<Prefs>, 'graphOrder'> & {
+      focusHides?: boolean;
+      graphOrder?: GraphOrder | 'connections';
+    };
+    const legacyConnections = p.graphOrder === 'connections';
     return {
       orientation: p.orientation === 'columns' ? 'columns' : 'rows',
       graphOrder: GRAPH_ORDERS.includes(p.graphOrder as GraphOrder)
         ? (p.graphOrder as GraphOrder)
-        : 'connections',
+        : 'original',
+      // Before this was an independent toggle, "connections" was a sort mode.
+      // Preserve that choice for returning visitors while defaulting new users off.
+      centerSelectedLinks: p.centerSelectedLinks ?? legacyConnections,
+      showGrid: p.showGrid === true,
+      showPathGhosts: p.showPathGhosts === true,
       // `focusHides` is the pre-generalisation key — read it as a fallback
       hideOthers: (p.hideOthers ?? p.focusHides) !== false,
       agentSkills: parseStacks(p.agentSkills),
@@ -79,6 +94,9 @@ function snapshotPrefs(s: Prefs): Prefs {
   return {
     orientation: s.orientation,
     graphOrder: s.graphOrder,
+    centerSelectedLinks: s.centerSelectedLinks,
+    showGrid: s.showGrid,
+    showPathGhosts: s.showPathGhosts,
     hideOthers: s.hideOthers,
     agentSkills: s.agentSkills,
   };
@@ -253,6 +271,12 @@ export interface AppState {
   routeOpen: boolean;
   orientation: Orientation;
   graphOrder: GraphOrder;
+  /** Re-center the selected form's immediate relatives without changing the base sort. */
+  centerSelectedLinks: boolean;
+  /** Graph-space coordinate grid behind the nodes. */
+  showGrid: boolean;
+  /** Quiet overview relationships; active previews, selections and routes remain visible. */
+  showPathGhosts: boolean;
   /** Isolate mode: hide (vs dim) everything outside the focused lineage / route. */
   hideOthers: boolean;
   /** Owned Bond Agent-Skill stacks (0..4 each), previewing reduced stat reqs. */
@@ -291,6 +315,9 @@ export interface AppState {
   clearLineageExclusions(): void;
   setOrientation(value: Orientation): void;
   setGraphOrder(value: GraphOrder): void;
+  setCenterSelectedLinks(value: boolean): void;
+  setShowGrid(value: boolean): void;
+  setShowPathGhosts(value: boolean): void;
   setHideOthers(value: boolean): void;
   setAgentSkill(category: AgentSkillCategory, value: number): void;
   setSettingsOpen(open: boolean): void;
@@ -474,6 +501,18 @@ export const useStore = create<AppState>()(
     },
     setGraphOrder: (value) => {
       set({ graphOrder: value });
+      savePrefs(snapshotPrefs(get()));
+    },
+    setCenterSelectedLinks: (value) => {
+      set({ centerSelectedLinks: value });
+      savePrefs(snapshotPrefs(get()));
+    },
+    setShowGrid: (value) => {
+      set({ showGrid: value });
+      savePrefs(snapshotPrefs(get()));
+    },
+    setShowPathGhosts: (value) => {
+      set({ showPathGhosts: value });
       savePrefs(snapshotPrefs(get()));
     },
     setHideOthers: (value) => {

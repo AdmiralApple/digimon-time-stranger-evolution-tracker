@@ -178,12 +178,12 @@ export function GraphCanvas() {
           personalities: state.personalities,
         };
         if (
-          state.graphOrder === 'connections' &&
+          state.centerSelectedLinks &&
           !state.focus &&
           !state.routeOpen &&
           !hasActiveCriteria(criteria)
         ) {
-          arrangeGraph(cy, state.graphOrder, id, state.orientation, true);
+          arrangeGraph(cy, state.graphOrder, id, state.orientation, true, true);
         }
         return;
       }

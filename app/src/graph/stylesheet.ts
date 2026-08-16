@@ -153,6 +153,9 @@ export function buildStylesheet(palette: GraphPalette): StyleRule[] {
     // Do not draw unexplained half-links to nodes far outside the camera. Hover,
     // selection, focus and route rules appear later and intentionally override it.
     { selector: 'edge.edge-offscreen', style: { 'line-opacity': 0 } },
+    // Optional node-only overview. This rule intentionally precedes every
+    // explanatory path state so active relationships still override it.
+    { selector: 'edge.path-ghosts-hidden', style: { 'line-opacity': 0 } },
     // One-hop preview for mouse users. Keep these before every persistent state
     // layer so a stale hover can never override selection, focus, or a route.
     {

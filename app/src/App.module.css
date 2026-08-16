@@ -444,6 +444,65 @@
   text-transform: none;
 }
 
+.graphToggles {
+  display: grid;
+  grid-template-columns: 1.1fr 0.65fr 1.1fr;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  pointer-events: auto;
+}
+
+.graphToggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 5px 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text-mute);
+  background: var(--surface-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.graphToggle:hover {
+  border-color: var(--accent-line);
+  color: var(--text);
+}
+
+.graphToggle[data-active='true'] {
+  border-color: var(--accent-line);
+  color: var(--text);
+  background: var(--accent-faint);
+}
+
+.toggleMark {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: transparent;
+}
+
+.graphToggle[data-active='true'] .toggleMark {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-faint);
+}
+
 .legend {
   position: absolute;
   bottom: max(12px, env(safe-area-inset-bottom));

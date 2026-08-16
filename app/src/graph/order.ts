@@ -1,7 +1,7 @@
-export type GraphOrder = 'connections' | 'original' | 'name' | 'number';
+export type GraphOrder = 'hidden' | 'original' | 'name' | 'number';
 
 export const GRAPH_ORDERS: readonly GraphOrder[] = [
-  'connections',
+  'hidden',
   'original',
   'name',
   'number',
@@ -9,6 +9,18 @@ export const GRAPH_ORDERS: readonly GraphOrder[] = [
 
 /** Full-atlas spacing authored by scripts/build-layout.mjs. */
 export const GRAPH_NODE_PITCH = 104;
+
+/** Stable partition used by the spoiler-aware ordering: silhouettes move to
+ * the leading edge while each group's existing order remains intact. */
+export function hiddenFirstOrder(
+  ordered: readonly string[],
+  hidden: ReadonlySet<string>,
+): string[] {
+  return [
+    ...ordered.filter((slug) => hidden.has(slug)),
+    ...ordered.filter((slug) => !hidden.has(slug)),
+  ];
+}
 
 /**
  * Reserve consecutive visual slots around `anchorSlot` for `moved`, then pack

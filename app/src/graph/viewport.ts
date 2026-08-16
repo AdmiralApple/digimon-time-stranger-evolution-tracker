@@ -4,7 +4,7 @@ import { lineage } from '../data/graph';
 import type { Route } from '../data/route';
 import { FOCUS_PITCH, focusPos, minimizeBandCrossings } from './crossing';
 import { genAxis, genLabelPos, orient, spreadAxis, type Orientation } from './orient';
-import { centeredSlots, GRAPH_NODE_PITCH, type GraphOrder } from './order';
+import { centeredSlots, GRAPH_NODE_PITCH, hiddenFirstOrder, type GraphOrder } from './order';
 
 /** Spread-axis pitch between consecutive steps in the compact route view. */
 const ROUTE_PITCH = 150;
@@ -23,10 +23,11 @@ function graphOrderTargets(
   order: GraphOrder,
   selected: string | null,
   orientation: Orientation,
+  centerSelectedLinks: boolean,
   currentAnchorSlot?: number,
+  hidden?: ReadonlySet<string>,
 ) {
   const { db, graph, layout } = appData();
-  const baseline = order === 'connections' ? 'original' : order;
   const bands = new Map<number, string[]>();
 
   for (const slug of graph.slugs) {
@@ -36,15 +37,19 @@ function graphOrderTargets(
 
   for (const slugs of bands.values()) {
     slugs.sort((a, b) => {
-      if (baseline === 'name') {
+      if (order === 'name') {
         return db.digimon[a].name.localeCompare(db.digimon[b].name, undefined, {
           numeric: true,
           sensitivity: 'base',
         });
       }
-      if (baseline === 'number') return db.digimon[a].number - db.digimon[b].number;
+      if (order === 'number') return db.digimon[a].number - db.digimon[b].number;
       return layout.positions[a].y - layout.positions[b].y;
     });
+  }
+
+  if (order === 'hidden' && hidden?.size) {
+    for (const [gen, slugs] of bands) bands.set(gen, hiddenFirstOrder(slugs, hidden));
   }
 
   const slots = new Map<number, Map<string, number>>();
@@ -52,7 +57,7 @@ function graphOrderTargets(
     slots.set(gen, new Map(slugs.map((slug, index) => [slug, index])));
   }
 
-  if (order === 'connections' && selected && layout.positions[selected]) {
+  if (centerSelectedLinks && selected && layout.positions[selected]) {
     const selectedGen = layout.positions[selected].x;
     const anchorSlot = currentAnchorSlot ?? bands.get(selectedGen)?.indexOf(selected) ?? 0;
     const selectedBand = bands.get(selectedGen);
@@ -92,7 +97,8 @@ function graphOrderTargets(
 }
 
 /**
- * Apply the normal atlas ordering. Relationship-aware ordering uses a manual
+ * Apply the normal atlas ordering, then optionally center the selected node's
+ * immediate relationships over that base order. Movement uses a manual
  * smoothstep lerp so all affected rows glide as one coherent rearrangement,
  * including when a second node is selected before the first move completes.
  */
@@ -101,11 +107,12 @@ export function arrangeGraph(
   order: GraphOrder,
   selected: string | null,
   orientation: Orientation,
+  centerSelectedLinks: boolean,
   animate = true,
 ): void {
   cancelGraphOrderAnimation();
   let currentAnchorSlot: number | undefined;
-  if (order === 'connections' && selected) {
+  if (centerSelectedLinks && selected) {
     const anchor = cy.$id(selected);
     if (anchor.length) {
       const current = anchor.position();
@@ -113,7 +120,18 @@ export function arrangeGraph(
       currentAnchorSlot = Math.max(0, Math.round(spread / GRAPH_NODE_PITCH));
     }
   }
-  const targets = graphOrderTargets(order, selected, orientation, currentAnchorSlot);
+  const hidden =
+    order === 'hidden'
+      ? new Set(cy.nodes('.fog').map((node) => node.id()))
+      : undefined;
+  const targets = graphOrderTargets(
+    order,
+    selected,
+    orientation,
+    centerSelectedLinks,
+    currentAnchorSlot,
+    hidden,
+  );
   const movers = cy.nodes().filter((node) => {
     const target = targets.get(node.id());
     if (!target) return false;
