@@ -9,15 +9,21 @@
 }
 
 .close {
-  padding: 2px 6px;
-  background: none;
-  border: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
   color: var(--text-dim);
   font-size: var(--fs-base);
   transition: color var(--transition-fast);
 }
 
 .close:hover {
+  border-color: var(--accent);
   color: var(--text);
 }
 

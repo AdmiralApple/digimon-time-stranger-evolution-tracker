@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useStore } from '../state/store';
 import type { Orientation } from '../graph/orient';
+import type { GraphOrder } from '../graph/order';
 import {
   AGENT_SKILL_CATEGORIES,
   MAX_STACKS,
@@ -8,6 +9,26 @@ import {
 } from '../data/agentSkills';
 import { useAnchoredPopover } from '../ui/useAnchoredPopover';
 import styles from './SettingsMenu.module.css';
+
+function GearIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
 
 interface Choice<T> {
   value: T;
@@ -127,6 +148,8 @@ export function SettingsMenu() {
   const setOpen = useStore((s) => s.setSettingsOpen);
   const orientation = useStore((s) => s.orientation);
   const setOrientation = useStore((s) => s.setOrientation);
+  const graphOrder = useStore((s) => s.graphOrder);
+  const setGraphOrder = useStore((s) => s.setGraphOrder);
   const hideOthers = useStore((s) => s.hideOthers);
   const setHideOthers = useStore((s) => s.setHideOthers);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -163,7 +186,7 @@ export function SettingsMenu() {
         title="Settings"
       >
         <span className={styles.icon} aria-hidden="true">
-          ⚙
+          <GearIcon />
         </span>
       </button>
       <div ref={popRef} popover="manual" className={styles.pop}>
@@ -177,6 +200,18 @@ export function SettingsMenu() {
           ]}
           onChange={setOrientation}
         />
+        <Segmented<GraphOrder>
+          label="Node order"
+          hint="Connections centers immediate forms around your selection. Name and ID sort within each generation."
+          value={graphOrder}
+          choices={[
+            { value: 'connections', label: 'Links' },
+            { value: 'original', label: 'Base' },
+            { value: 'name', label: 'Name' },
+            { value: 'number', label: 'ID' },
+          ]}
+          onChange={setGraphOrder}
+        />
         <Segmented<boolean>
           label="Focus & route"
           hint="How the rest of the tree behaves while a lineage is focused or a route is shown."
@@ -188,6 +223,17 @@ export function SettingsMenu() {
           onChange={setHideOthers}
         />
         <AgentSkillsSection />
+        <p className={styles.legal}>
+          Unofficial fan project. Not affiliated with or endorsed by Bandai Namco Entertainment.
+          Game content belongs to its respective rights holders.{' '}
+          <a
+            href="https://github.com/AdmiralApple/digimon-time-stranger-evolution-tracker"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Source &amp; licenses
+          </a>
+        </p>
       </div>
     </div>
   );

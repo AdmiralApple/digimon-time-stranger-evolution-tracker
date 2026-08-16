@@ -14,8 +14,8 @@ spoiler-free map that fills in from your own save:
   your Field Guide progress (discovered / registered) loads instantly.
 - **Spoiler-free mode** — Digimon you haven't met are hidden; each new discovery
   lights up its evolution links, so connections unlock as you find them.
-- **Frontier hints** — the next unmet Digimon along a known line show as a `?`
-  silhouette, pointing you toward what's discoverable next (toggleable).
+- **Frontier hints** — only unmet Digimon directly connected to something
+  revealed show as `?` silhouettes; click one to trace its known connections.
 - Progress persists locally; re-import whenever your save advances. You can also
   hand-reveal manually.
 
@@ -25,6 +25,8 @@ documented in [`../SAVE_FORMAT.md`](../SAVE_FORMAT.md).
 `data/` (digimon.json + icons) is produced by the companion scraper repo
 (`time-stranger-scraper`); see that repo's README for the database schema.
 All game content belongs to Bandai Namco; this is a fan project.
+
+Live app: <https://admiralapple.github.io/digimon-time-stranger-evolution-tracker/>
 
 ## Usage
 
@@ -77,17 +79,16 @@ automatically.
 
 ## Design system
 
-**Colour comes from the Digimon, not the chrome.** The neutrals are a quiet warm
-graphite/off-white stage (near-zero chroma, OKLCH); the accent is repainted with
-the *selected* sprite's own signature hue, so the whole UI shifts as you explore.
+The neutrals are a quiet graphite/off-white stage (near-zero chroma, OKLCH),
+with a stable Vaccine-blue interface accent. Individual graph nodes retain
+their own signature selection glow without repainting the surrounding chrome.
 One humanist family (Hanken Grotesk) carries everything, hierarchy by weight.
 
-- **Chromatic engine** — `scripts/sync-data.mjs` extracts each sprite's dominant
+- **Node-colour engine** — `scripts/sync-data.mjs` extracts each sprite's dominant
   OKLCH hue+chroma at data-sync time (defeating the icons' chromatic-aberration
-  glitch with a pre-blur) into `src/generated/colors.json`. At runtime
-  `src/theme/chroma.ts` + `useChromaticAccent` set `--accent-h` / `--accent-c`
-  on selection; the theme owns `--accent-l`, so the accent reads in both themes.
-  The Cytoscape selection glow uses each node's `data(accent)` hex.
+  glitch with a pre-blur) into `src/generated/colors.json`. The Cytoscape
+  selection glow uses each node's `data(accent)` hex while the surrounding
+  interface remains Vaccine blue.
 - **Themes** — `src/theme/theme.ts` toggles a `data-theme` attribute on `<html>`
   (persisted, system-default, anti-flash inline script in `index.html`).
   `tokens.css` overrides neutrals/accents on `[data-theme='light']`. The graph
@@ -113,3 +114,9 @@ One humanist family (Hanken Grotesk) carries everything, hierarchy by weight.
   - `InfoTip` — a `?` help affordance: a native top-layer popover with an
     optional foot action (used for menus that must clear the panel/bottom sheet).
   - `Panel` / `CloseButton`, `Chip`, `Collapse`, `BrandMark`, `ThemeToggle`.
+
+## License
+
+Original source code is licensed under the repository's MIT License. Digimon
+artwork, names, game data, and other third-party content are excluded; see the
+root `THIRD_PARTY_NOTICES.md`.

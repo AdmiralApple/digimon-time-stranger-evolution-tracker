@@ -330,7 +330,7 @@ export function CodexPage() {
             type="search"
             value={query}
             onChange={(e) => patchCodex({ query: e.target.value })}
-            placeholder="Filter by name or #…"
+            placeholder="Search 475 forms by name or number…"
             spellCheck={false}
             aria-label="Filter Digimon by name or number"
           />

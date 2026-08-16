@@ -3,6 +3,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { appData } from '../data/appData';
 import { lineage } from '../data/graph';
 import type { Orientation } from '../graph/orient';
+import { GRAPH_ORDERS, type GraphOrder } from '../graph/order';
 import { findRoutes, type Route } from '../data/route';
 import {
   AGENT_SKILL_CATEGORIES,
@@ -22,12 +23,14 @@ import { parseSave, type SaveProgress } from '../data/saveImport';
 const PREFS_KEY = 'tst:prefs';
 interface Prefs {
   orientation: Orientation;
+  graphOrder: GraphOrder;
   hideOthers: boolean;
   /** Owned Bond Agent-Skill stacks (0..4 each) used to preview reduced stat reqs. */
   agentSkills: AgentSkillStacks;
 }
 const DEFAULT_PREFS: Prefs = {
   orientation: 'rows',
+  graphOrder: 'connections',
   hideOthers: true,
   agentSkills: EMPTY_AGENT_SKILLS,
 };
@@ -51,6 +54,9 @@ function loadPrefs(): Prefs {
     const p = JSON.parse(raw) as Partial<Prefs> & { focusHides?: boolean };
     return {
       orientation: p.orientation === 'columns' ? 'columns' : 'rows',
+      graphOrder: GRAPH_ORDERS.includes(p.graphOrder as GraphOrder)
+        ? (p.graphOrder as GraphOrder)
+        : 'connections',
       // `focusHides` is the pre-generalisation key — read it as a fallback
       hideOthers: (p.hideOthers ?? p.focusHides) !== false,
       agentSkills: parseStacks(p.agentSkills),
@@ -70,7 +76,12 @@ function savePrefs(prefs: Prefs): void {
 
 /** Pull the persistable slice out of the live store state (single source for saves). */
 function snapshotPrefs(s: Prefs): Prefs {
-  return { orientation: s.orientation, hideOthers: s.hideOthers, agentSkills: s.agentSkills };
+  return {
+    orientation: s.orientation,
+    graphOrder: s.graphOrder,
+    hideOthers: s.hideOthers,
+    agentSkills: s.agentSkills,
+  };
 }
 
 // --- Field Guide discovery (fog-of-war), persisted separately from display prefs.
@@ -238,6 +249,7 @@ export interface AppState {
   route: RouteState;
   routeOpen: boolean;
   orientation: Orientation;
+  graphOrder: GraphOrder;
   /** Isolate mode: hide (vs dim) everything outside the focused lineage / route. */
   hideOthers: boolean;
   /** Owned Bond Agent-Skill stacks (0..4 each), previewing reduced stat reqs. */
@@ -272,6 +284,7 @@ export interface AppState {
   /** Restore every pruned branch. */
   clearLineageExclusions(): void;
   setOrientation(value: Orientation): void;
+  setGraphOrder(value: GraphOrder): void;
   setHideOthers(value: boolean): void;
   setAgentSkill(category: AgentSkillCategory, value: number): void;
   setSettingsOpen(open: boolean): void;
@@ -428,6 +441,10 @@ export const useStore = create<AppState>()(
       set(get().lineageExcluded.size ? { lineageExcluded: new Set<string>() } : {}),
     setOrientation: (value) => {
       set({ orientation: value });
+      savePrefs(snapshotPrefs(get()));
+    },
+    setGraphOrder: (value) => {
+      set({ graphOrder: value });
       savePrefs(snapshotPrefs(get()));
     },
     setHideOthers: (value) => {

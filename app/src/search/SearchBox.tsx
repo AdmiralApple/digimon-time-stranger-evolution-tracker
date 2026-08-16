@@ -38,9 +38,10 @@ export function SearchBox() {
   return (
     <div className={styles.wrap}>
       <input
+        id="digimon-search"
         ref={inputRef}
         className={styles.input}
-        placeholder="Search Digimon…  ( / )"
+        placeholder="Find a Digimon or form…"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);

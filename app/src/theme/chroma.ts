@@ -11,8 +11,8 @@ export interface AccentSeed {
 
 const COLORS = colorsJson as Record<string, AccentSeed>;
 
-/** Default brand accent when nothing is selected — a warm temporal amber. */
-export const DEFAULT_ACCENT: AccentSeed = { h: 72, c: 0.12 };
+/** Stable Vaccine blue used whenever no subject-specific graph glow is needed. */
+export const DEFAULT_ACCENT: AccentSeed = { h: 250, c: 0.15 };
 
 // Sprite chroma is conservative; give UI accents a consistent, usable punch
 // without letting a neon sprite blow out the neutral chrome.

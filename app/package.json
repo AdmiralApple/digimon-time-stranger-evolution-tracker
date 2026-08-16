@@ -2,6 +2,7 @@
   "name": "time-stranger-tree",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Interactive evolution-tree explorer for Digimon Story: Time Stranger",
   "scripts": {

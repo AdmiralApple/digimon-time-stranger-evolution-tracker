@@ -5,8 +5,13 @@
 // sprite trick — so the whole app pays a single image request instead of ~475.
 import manifest from '../generated/atlas.json';
 
+/** Resolve public assets beneath Vite's deployment base (root locally, the
+ * repository subpath on GitHub Pages). */
+const publicAsset = (path: string): string =>
+  `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
+
 /** URL of the atlas sheet (content-hash query → immutable-cacheable, auto-busts). */
-export const ATLAS_SRC = manifest.src;
+export const ATLAS_SRC = publicAsset(manifest.src);
 export const ATLAS_COLS = manifest.cols;
 export const ATLAS_ROWS = manifest.rows;
 

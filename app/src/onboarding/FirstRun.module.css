@@ -1,0 +1,256 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  overflow: auto;
+  padding: clamp(20px, 5vw, 64px);
+  background:
+    linear-gradient(oklch(0.7 0.04 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.7 0.04 255 / 0.045) 1px, transparent 1px),
+    var(--graph-bg);
+  background-size: 56px 56px;
+}
+
+.dialog {
+  width: min(820px, 100%);
+  padding: clamp(22px, 4vw, 42px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 28px 80px oklch(0.04 0.02 255 / 0.55);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-md);
+  color: var(--accent);
+  background: var(--accent-faint);
+}
+
+.eyebrow,
+.recommended,
+.revealLabel {
+  display: block;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  margin-bottom: 3px;
+  color: var(--accent);
+}
+
+.header h1 {
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.1;
+}
+
+.intro {
+  max-width: 650px;
+  margin: 22px 0 28px;
+  color: var(--text-dim);
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.choice {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.choicePrimary {
+  border-color: var(--accent-line);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  background: var(--surface-2);
+}
+
+.icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.recommended {
+  color: var(--accent);
+}
+
+.revealLabel {
+  color: var(--text-mute);
+}
+
+.choice h2 {
+  margin-top: 4px;
+  font-size: var(--fs-xl);
+}
+
+.choice p {
+  margin: 8px 0 22px;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+}
+
+.primaryButton,
+.secondaryButton {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 750;
+  transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.primaryButton {
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+
+.secondaryButton {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.primaryButton:hover:not(:disabled),
+.secondaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.file {
+  display: none;
+}
+
+.path {
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+  color: var(--text-mute);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: var(--fs-micro);
+}
+
+.error {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in oklch, var(--danger), transparent 45%);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  background: color-mix(in oklch, var(--danger), transparent 90%);
+  font-size: var(--fs-sm);
+}
+
+.footer {
+  margin-top: 20px;
+  color: var(--text-mute);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .screen {
+    place-items: start center;
+    padding: 14px;
+  }
+
+  .dialog {
+    padding: 20px;
+  }
+
+  .choices {
+    grid-template-columns: 1fr;
+  }
+
+  .choice {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    column-gap: 14px;
+  }
+
+  .icon {
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+
+  .choiceCopy {
+    grid-column: 2;
+  }
+
+  .choice p {
+    margin-bottom: 16px;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .path {
+    grid-column: 1 / -1;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .screen {
+    padding: 0;
+  }
+
+  .dialog {
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .mark {
+    flex-basis: 50px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .intro {
+    margin: 18px 0 20px;
+    font-size: var(--fs-base);
+  }
+}

@@ -50,7 +50,9 @@ function EndpointPicker({ which }: { which: 'from' | 'to' }) {
 
   return (
     <div className={styles.endpoint} data-endpoint={which}>
-      <span className={`label ${styles.endpointLabel}`}>{which === 'from' ? 'From' : 'To'}</span>
+      <span className={`label ${styles.endpointLabel}`}>
+        {which === 'from' ? 'Start' : 'Goal'}
+      </span>
       {digimon ? (
         <button
           className={styles.endpointValue}
@@ -64,7 +66,7 @@ function EndpointPicker({ which }: { which: 'from' | 'to' }) {
         <div className={styles.endpointSearch}>
           <input
             value={query}
-            placeholder="Search…"
+            placeholder={which === 'from' ? 'Choose a starting form…' : 'Choose a target form…'}
             onChange={(e) => {
               setQuery(e.target.value);
               setOpen(true);
@@ -74,6 +76,7 @@ function EndpointPicker({ which }: { which: 'from' | 'to' }) {
             onBlur={() => setTimeout(() => setOpen(false), 150)}
             onKeyDown={onKeyDown}
             spellCheck={false}
+            aria-label={which === 'from' ? 'Starting Digimon' : 'Goal Digimon'}
           />
           {selected && selected !== value && (
             <button
@@ -83,7 +86,7 @@ function EndpointPicker({ which }: { which: 'from' | 'to' }) {
                 setRouteEndpoint(which, selected);
               }}
             >
-              use selected
+              Use selected
             </button>
           )}
           {hits.length > 0 && (
@@ -142,12 +145,17 @@ export function RoutePlanner() {
 
   return (
     <Panel>
-      <header className={styles.header}>
-        <h2>Route Planner</h2>
+      <div className={styles.content}>
+        <header className={styles.header}>
+        <div>
+          <span className={styles.eyebrow}>Route builder</span>
+          <h2>Plan an evolution</h2>
+          <p>Choose where you are and the form you want to reach.</p>
+        </div>
         <CloseButton onClick={exitRoute} title="Close (Esc)" />
-      </header>
+        </header>
 
-      <div className={styles.inputs}>
+        <div className={styles.inputs}>
         <div className={styles.endpoints}>
           <EndpointPicker which="from" />
           <button
@@ -167,51 +175,57 @@ export function RoutePlanner() {
           </button>
           <EndpointPicker which="to" />
         </div>
-        <label className={styles.rank}>
-          My agent rank
-          <select
-            value={route.maxAgentRank ?? ''}
-            onChange={(e) => setMaxAgentRank(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">any</option>
-            {RANKS.map((rank) => (
-              <option key={rank} value={rank}>
-                {rank}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className={styles.options}>
+          <label className={styles.rank}>
+            Highest Agent rank
+            <select
+              value={route.maxAgentRank ?? ''}
+              onChange={(e) => setMaxAgentRank(e.target.value ? Number(e.target.value) : null)}
+            >
+              <option value="">Any</option>
+              {RANKS.map((rank) => (
+                <option key={rank} value={rank}>
+                  {rank}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className={styles.avoid}>
-          <input
-            type="checkbox"
-            className={styles.avoidInput}
-            checked={route.avoidJogress}
-            onChange={(e) => setAvoidJogress(e.target.checked)}
-          />
-          <span className={styles.avoidBox} aria-hidden="true">
-            <svg viewBox="0 0 12 12" width="11" height="11" focusable="false">
-              <path
-                d="M2.5 6.2 L5 8.6 L9.5 3.4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <span className={styles.avoidLabel}>Avoid Jogress/DNA evolutions if possible</span>
-        </label>
-      </div>
+          <label className={styles.avoid}>
+            <input
+              type="checkbox"
+              className={styles.avoidInput}
+              checked={route.avoidJogress}
+              onChange={(e) => setAvoidJogress(e.target.checked)}
+            />
+            <span className={styles.avoidBox} aria-hidden="true">
+              <svg viewBox="0 0 12 12" width="11" height="11" focusable="false">
+                <path
+                  d="M2.5 6.2 L5 8.6 L9.5 3.4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <span className={styles.avoidLabel}>Avoid Jogress/DNA when possible</span>
+          </label>
+        </div>
+        </div>
 
-      <div className={styles.scroll}>
+        <div className={styles.scroll}>
         {!route.from || !route.to ? (
-          <p className={styles.empty}>Pick a start and a target Digimon.</p>
+          <div className={styles.empty}>
+            <strong>Choose two forms to begin.</strong>
+            <span>We’ll compare up to three routes and show every requirement along the way.</span>
+          </div>
         ) : !routes || routes.length === 0 ? (
-          <p className={styles.empty}>
-            No route found{route.maxAgentRank ? ' at this agent rank' : ''}.
-          </p>
+          <div className={styles.empty}>
+            <strong>No route found{route.maxAgentRank ? ' at this Agent rank' : ''}.</strong>
+            <span>Try raising the rank limit or allowing Jogress/DNA evolutions.</span>
+          </div>
         ) : (
           <>
             {noJogressFree && (
@@ -244,7 +258,8 @@ export function RoutePlanner() {
             {active && summary && (
               <div className={styles.summary}>
                 <div className={styles.summaryCounts}>
-                  {active.steps.length} steps · {summary.counts.digivolves}▲{' '}
+                  {active.steps.length} {active.steps.length === 1 ? 'step' : 'steps'} ·{' '}
+                  {summary.counts.digivolves}▲{' '}
                   {summary.counts.dedigivolves}▼
                 </div>
                 <div className={styles.summaryPills}>
@@ -302,6 +317,7 @@ export function RoutePlanner() {
             ))}
           </>
         )}
+        </div>
       </div>
     </Panel>
   );

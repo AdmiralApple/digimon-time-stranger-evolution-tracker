@@ -13,12 +13,13 @@ import { RoutePlanner } from './route/RoutePlanner';
 import { SearchBox } from './search/SearchBox';
 import { SettingsMenu } from './settings/SettingsMenu';
 import { DiscoveryMenu } from './discovery/DiscoveryMenu';
+import { FirstRun } from './onboarding/FirstRun';
+import { needsFirstRunChoice } from './onboarding/browserState';
 import { CodexPage } from './codex/CodexPage';
 import { useStore } from './state/store';
 import { exitFocus, exitRoute, initUrlSync } from './state/urlSync';
 import { ATTRIBUTE_COLORS } from './theme/attribute';
 import { ATTRIBUTE_KEYS } from './data/schema';
-import { useChromaticAccent } from './theme/useChromaticAccent';
 import { BrandMark } from './ui/BrandMark';
 import { SegButton } from './ui/SegButton';
 import { ThemeToggle } from './ui/ThemeToggle';
@@ -62,6 +63,41 @@ function Splash({ children }: { children: React.ReactNode }) {
   );
 }
 
+function GraphHud() {
+  const graphOrder = useStore((s) => s.graphOrder);
+  const setGraphOrder = useStore((s) => s.setGraphOrder);
+
+  return (
+    <div className={styles.graphHud}>
+      <label className={styles.graphOrder}>
+        <span>Sort nodes</span>
+        <select
+          value={graphOrder}
+          onChange={(event) => setGraphOrder(event.target.value as typeof graphOrder)}
+          aria-label="Node order"
+        >
+          <option value="connections">Selected links</option>
+          <option value="original">Original</option>
+          <option value="name">Name</option>
+          <option value="number">ID</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+
+function PanelChevron({ direction }: { direction: 'left' | 'right' }) {
+  const paths = direction === 'right'
+    ? ['M3.5 3.5 8 8l-4.5 4.5', 'M9 3.5 13.5 8 9 12.5']
+    : ['M12.5 3.5 8 8l4.5 4.5', 'M7 3.5 2.5 8 7 12.5'];
+
+  return (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      {paths.map((path) => <path key={path} d={path} strokeLinecap="round" strokeLinejoin="round" />)}
+    </svg>
+  );
+}
+
 type PanelMode = 'dock' | 'drawer' | 'sheet';
 
 // Fallback collapsed-sheet height until the panel header is measured.
@@ -86,6 +122,7 @@ function PanelHost({
   collapsed,
   onCollapse,
   onExpand,
+  onHide,
   children,
 }: {
   mode: PanelMode;
@@ -93,6 +130,7 @@ function PanelHost({
   collapsed: boolean;
   onCollapse: () => void;
   onExpand: () => void;
+  onHide: () => void;
   children: React.ReactNode;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -141,8 +179,24 @@ function PanelHost({
     peekPx,
   });
 
-  // Docked: the panel is a normal flex child; no overlay chrome.
-  if (mode === 'dock') return <>{children}</>;
+  // Docked: the panel is a normal flex child; removing it lets the graph reclaim
+  // the full row without clearing the current selection or route.
+  if (mode === 'dock') {
+    return open ? (
+      <div className={styles.panelHost} data-mode="dock" data-open="true">
+        <button
+          type="button"
+          className={styles.dockPanelToggle}
+          onClick={onHide}
+          aria-label="Hide details panel"
+          title="Hide details panel"
+        >
+          <PanelChevron direction="right" />
+        </button>
+        {children}
+      </div>
+    ) : null;
+  }
 
   return (
     <div
@@ -180,6 +234,11 @@ export default function App() {
   const filtersOpen = useStore((s) => s.filtersOpen);
   const setFiltersOpen = useStore((s) => s.setFiltersOpen);
   const openRoute = useStore((s) => s.openRoute);
+  // The desktop atlas opens full-width; its edge chevron restores the dossier.
+  // Overlay panels remain automatic on tablet/phone because they have no
+  // persistent restore control when a selection is waiting underneath.
+  const [panelVisible, setPanelVisible] = useState(false);
+  const [firstRun, setFirstRun] = useState(needsFirstRunChoice);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
@@ -187,8 +246,8 @@ export default function App() {
   const overlay = useMediaQuery('(max-width: 1023px)');
   const compact = useMediaQuery('(max-width: 639px)');
   const panelMode: PanelMode = !overlay ? 'dock' : compact ? 'sheet' : 'drawer';
-
-  useChromaticAccent();
+  const panelAvailable = panelMode === 'dock' || routeOpen || Boolean(selected);
+  const panelOpen = panelAvailable && (panelMode !== 'dock' || panelVisible);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -222,6 +281,13 @@ export default function App() {
     setSheetCollapsed(false);
   }, [selected, routeOpen]);
 
+  // Opening the route planner is an explicit request for panel content, so it
+  // restores a panel the user may previously have hidden. Plain node selection
+  // respects the toggle and leaves the map viewport untouched.
+  useEffect(() => {
+    if (routeOpen) setPanelVisible(true);
+  }, [routeOpen]);
+
   if (error) {
     return (
       <Splash>
@@ -244,6 +310,10 @@ export default function App() {
     );
   }
 
+  if (firstRun) {
+    return <FirstRun onComplete={() => setFirstRun(false)} />;
+  }
+
   // The idle "welcome" panel only earns its keep as a docked column; when the
   // graph is full-bleed it stays out of the way until the user picks something.
   const panelContent = routeOpen ? (
@@ -259,45 +329,60 @@ export default function App() {
   return (
     <div className={styles.shell}>
       <header className={styles.topbar} data-view={view}>
-        <div className={styles.brand}>
-          <span className={styles.mark}>
-            <BrandMark size={22} />
-          </span>
-          <h1 className={styles.title}>
-            Time Stranger <span className={styles.titleAccent}>Tree</span>
-          </h1>
-        </div>
-        <div className={styles.viewSwitch}>
-          <ViewSwitch value={view} onChange={setView} />
+        <div className={styles.primaryChrome}>
+          <div className={styles.brand}>
+            <span className={styles.markFrame}>
+              <span className={styles.mark}>
+                <BrandMark size={24} />
+              </span>
+            </span>
+            <div className={styles.brandType}>
+              <h1 className={styles.title}>Time Stranger</h1>
+              <span className={styles.brandSub}>Evolution atlas</span>
+            </div>
+          </div>
+          <div className={styles.viewSwitch}>
+            <ViewSwitch value={view} onChange={setView} />
+          </div>
+          <div className={styles.sysActions}>
+            {/* Settings + Field Guide carry graph controls (layout, spoiler-free
+                fog), so they hide on the Codex alongside the other graph-only chrome. */}
+            {view === 'graph' && (
+              <>
+                <DiscoveryMenu />
+                <span className={styles.utilityDivider} aria-hidden="true" />
+                <SettingsMenu />
+              </>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
         {view === 'graph' && (
-          <>
+          <div className={styles.graphChrome}>
             <div className={styles.search}>
               <SearchBox />
             </div>
             <div className={styles.viewActions}>
               <SegButton active={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>
-                Filters
+                Filter
               </SegButton>
-              <SegButton active={routeOpen} onClick={() => (routeOpen ? exitRoute() : openRoute())}>
-                Route
+              <SegButton
+                tone="primary"
+                active={routeOpen}
+                onClick={() => (routeOpen ? exitRoute() : openRoute())}
+              >
+                <span className={styles.routeFull}>Plan route</span>
+                <span className={styles.routeShort}>Route</span>
               </SegButton>
               {focus && (
                 <SegButton active onClick={exitFocus} title="Exit focus (Esc)">
-                  ◈ <span className={styles.focusFull}>Focused — exit</span>
+                  <span className={styles.focusFull}>Exit lineage</span>
                   <span className={styles.focusShort}>Exit</span>
                 </SegButton>
               )}
             </div>
-          </>
+          </div>
         )}
-        <div className={styles.sysActions}>
-          {/* Settings + Field Guide carry graph controls (layout, spoiler-free
-              fog), so they hide on the Codex alongside the other graph-only chrome. */}
-          {view === 'graph' && <DiscoveryMenu />}
-          {view === 'graph' && <SettingsMenu />}
-          <ThemeToggle />
-        </div>
       </header>
       {view === 'graph' && (
         <div className={styles.filterReveal} data-open={filtersOpen}>
@@ -314,8 +399,20 @@ export default function App() {
             <GraphCanvas />
             <Celebration />
             <HiddenBranches />
+            <GraphHud />
+            {panelMode === 'dock' && panelAvailable && !panelOpen && (
+              <button
+                type="button"
+                className={styles.panelRestore}
+                onClick={() => setPanelVisible(true)}
+                aria-label="Show details panel"
+                title="Show details panel"
+              >
+                <PanelChevron direction="left" />
+              </button>
+            )}
             <div className={styles.legend}>
-              <span className={styles.legendTitle}>Attribute</span>
+              <span className={styles.legendTitle}>Attributes</span>
               {ATTRIBUTE_KEYS.map((attribute) => (
                 <span key={attribute} className={styles.legendItem}>
                   <span
@@ -329,10 +426,11 @@ export default function App() {
           </main>
           <PanelHost
             mode={panelMode}
-            open={routeOpen || Boolean(selected)}
+            open={panelOpen}
             collapsed={sheetCollapsed}
             onCollapse={() => setSheetCollapsed(true)}
             onExpand={() => setSheetCollapsed(false)}
+            onHide={() => setPanelVisible(false)}
           >
             {panelContent}
           </PanelHost>

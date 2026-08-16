@@ -4,13 +4,20 @@ import { descendants, edgeKey, lineage } from '../../data/graph';
 import { filterSlugs, hasActiveCriteria } from '../../data/search';
 import { revealedSet, useStore, type AppState } from '../../state/store';
 import { getCy } from '../cyInstance';
-import { compactFilter, compactFocus, compactRoute, reorientGraph, resetView } from '../viewport';
+import { frontierNodes } from '../frontier';
+import {
+  arrangeGraph,
+  cancelGraphOrderAnimation,
+  compactFilter,
+  compactFocus,
+  compactRoute,
+  reorientGraph,
+  resetView,
+} from '../viewport';
 import type { Core } from 'cytoscape';
 
 const APPEARANCE_CLASSES =
-  'sel dim-soft dim-hard dim-filter hidden fog fog-edge lineage-next lineage-prev lineage-prev-thin filter-mute route-dim route-glow route-glow-devolve route-node route-step-active';
-
-const NO_EXCLUSIONS: ReadonlySet<string> = new Set();
+  'sel dim-soft dim-hard dim-filter hidden fog fog-edge frontier-active frontier-neighbor frontier-next frontier-prev lineage-next lineage-prev lineage-prev-thin filter-mute route-dim route-glow route-glow-devolve route-node route-step-active';
 
 const prefersReduce = (): boolean =>
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -128,6 +135,31 @@ function paintLineage(
 }
 
 /**
+ * Keep a normal selection local: the chosen form plus its immediate parents and
+ * children stay readable, while every unrelated relationship falls back into
+ * the structural layer. The exhaustive transitive family remains available in
+ * focus mode, where it is isolated and re-packed specifically for that job.
+ */
+function paintNeighborhood(cy: Core, anchor: string, outsideClass: string): void {
+  const graph = appData().graph;
+  const previous = graph.inn.get(anchor) ?? [];
+  const next = graph.out.get(anchor) ?? [];
+  const local = new Set<string>([anchor, ...previous, ...next]);
+
+  cy.nodes().forEach((node) => {
+    if (!local.has(node.id())) node.addClass(outsideClass);
+  });
+  cy.edges().addClass(outsideClass);
+
+  previous.forEach((from) => {
+    cy.$id(edgeKey(from, anchor)).removeClass(outsideClass).addClass('lineage-prev');
+  });
+  next.forEach((to) => {
+    cy.$id(edgeKey(anchor, to)).removeClass(outsideClass).addClass('lineage-next');
+  });
+}
+
+/**
  * Fog-of-war base layer. When discovery mode is on, everything you haven't met
  * in-game is hidden; the undiscovered Digimon directly adjacent to something
  * you *have* met surface as nameless "?" silhouettes (the frontier), and an
@@ -142,13 +174,7 @@ function paintFog(cy: Core, state: AppState): void {
   const revealed = revealedSet(state.discovery);
 
   // Frontier = undiscovered neighbours (either direction) of a revealed node.
-  const frontierSet = new Set<string>();
-  if (frontier) {
-    for (const slug of revealed) {
-      for (const nb of graph.out.get(slug) ?? []) if (!revealed.has(nb)) frontierSet.add(nb);
-      for (const nb of graph.inn.get(slug) ?? []) if (!revealed.has(nb)) frontierSet.add(nb);
-    }
-  }
+  const frontierSet = frontier ? frontierNodes(graph, revealed) : new Set<string>();
 
   cy.nodes().forEach((n) => {
     if (n.hasClass('col-label')) return; // generation headers always show
@@ -200,9 +226,10 @@ function recompute(state: AppState): void {
         state.hideOthers,
       );
     } else if (state.selected) {
-      // soft lineage highlight only outside focus mode — shows the full family
-      // (branch-pruning is a focus-mode tool, so no exclusions here)
-      paintLineage(cy, state.selected, 'dim-soft', NO_EXCLUSIONS);
+      // A single click answers the immediate question (what comes before/after)
+      // without painting the entire transitive family. Focus mode is the explicit
+      // exhaustive lineage view and owns the heavier re-packed presentation.
+      paintNeighborhood(cy, state.selected, 'dim-soft');
     }
 
     // filter layer. In the normal tree view a filter isolates: non-matches are
@@ -290,7 +317,7 @@ function centerNode(cy: Core, node: ReturnType<Core['$id']>, zoom: number, anima
  *   • filtered (normal view)  → compact the matches into their bands, framed
  *   • otherwise               → anchor the selection, or the opening slab
  */
-function frameGraph(cy: Core, animate = true): void {
+export function frameGraph(cy: Core, animate = true): void {
   const state = useStore.getState();
   const o = state.orientation;
   // Under reduced motion the camera jumps to its target instead of gliding — the
@@ -314,14 +341,13 @@ function frameGraph(cy: Core, animate = true): void {
     return;
   }
 
-  reorientGraph(cy, o);
-
   // Route planner open but no path to frame — no endpoints yet, no route at the
   // chosen agent rank, or from === to (0 steps). Show the whole tree, exactly as
   // when the planner first opens, so the user keeps their bearings. Without this
   // we'd fall through to the selection anchor below and pan the viewport onto a
   // stale position, parking the graph in empty space.
   if (state.routeOpen) {
+    reorientGraph(cy, o);
     resetView(cy, o, anim);
     return;
   }
@@ -334,11 +360,14 @@ function frameGraph(cy: Core, animate = true): void {
     personalities: state.personalities,
   };
   if (hasActiveCriteria(criteria)) {
+    reorientGraph(cy, o);
     const matching = filterSlugs(appData().db, criteria);
     compactFilter(cy, matching, o);
     fitEles(cy, matching, 60, anim);
     return;
   }
+
+  arrangeGraph(cy, state.graphOrder, state.selected, o, false);
 
   const anchor = state.selected ? cy.$id(state.selected) : null;
   if (anchor?.length) {
@@ -420,35 +449,43 @@ export function useGraphController(): void {
         (selected) => {
           if (selected) pulseSelection(selected);
           else clearPulse(getCy());
+
+          const cy = getCy();
+          const state = useStore.getState();
+          const criteria = {
+            attributes: state.attributes,
+            special: state.special,
+            personalities: state.personalities,
+          };
+          if (
+            cy &&
+            state.graphOrder === 'connections' &&
+            !state.focus &&
+            !state.routeOpen &&
+            !hasActiveCriteria(criteria)
+          ) {
+            // Selection changes only rearrange rows; the camera deliberately
+            // stays exactly where the user left it.
+            arrangeGraph(cy, state.graphOrder, selected, state.orientation, true);
+          }
         },
       ),
 
-      // viewport: pan to a new selection (only when not (re)framing for focus)
+      // Explicit order changes use the same smooth row transition but never
+      // steal the camera. Focus, routes, and filtered compaction own their own
+      // layouts; the chosen order applies as soon as the normal atlas returns.
       useStore.subscribe(
-        (s) => s.selected,
-        (selected) => {
+        (s) => s.graphOrder,
+        () => {
           const cy = getCy();
-          if (!cy || !selected || useStore.getState().focus) return;
-          const node = cy.$id(selected);
-          if (!node.length) return;
-          // Cancel any in-flight viewport animation first: cy.animate() queues by
-          // default, so without this a quick second pick would tour through the
-          // previous target(s) instead of heading straight to the newest one.
-          cy.stop();
-          // Always recentre the node; zoom in only if we're currently too far out
-          // to read it. Deriving the pan from the node's model position (rather
-          // than `center: { eles }` / `zoom: { position }`) means the target is
-          // immune to the selection pulse's animating underlay, AND the zoom-in
-          // case actually recentres instead of zooming in place (the old bug).
-          const z = cy.zoom() < 0.4 ? 0.8 : cy.zoom();
-          const p = node.position();
-          const pan = { x: cy.width() / 2 - p.x * z, y: cy.height() / 2 - p.y * z };
-          if (prefersReduce()) {
-            cy.zoom(z);
-            cy.pan(pan);
-          } else {
-            cy.animate({ zoom: z, pan, duration: 300, easing: 'ease-out-cubic' });
-          }
+          const state = useStore.getState();
+          const criteria = {
+            attributes: state.attributes,
+            special: state.special,
+            personalities: state.personalities,
+          };
+          if (!cy || state.focus || state.routeOpen || hasActiveCriteria(criteria)) return;
+          arrangeGraph(cy, state.graphOrder, state.selected, state.orientation, true);
         },
       ),
 
@@ -498,8 +535,7 @@ export function useGraphController(): void {
     // A deep-linked focus / route / selection is set before we subscribe — frame it
     // once on mount. Selection is included so a cold #/d/<slug> link (or a refresh)
     // centres the node instead of parking the graph at the overview with the node
-    // stranded in a corner; the pan-to-selection subscription only fires on later
-    // changes, never the initial value.
+    // stranded in a corner. Normal node clicks deliberately preserve the viewport.
     const cy = getCy();
     const s0 = useStore.getState();
     if (cy && (s0.focus || s0.routeOpen || s0.selected)) frameGraph(cy, false);
@@ -509,6 +545,7 @@ export function useGraphController(): void {
         cancelAnimationFrame(flowRAF);
         flowRAF = 0;
       }
+      cancelGraphOrderAnimation();
       lastPulsed = null;
     };
   }, []);
