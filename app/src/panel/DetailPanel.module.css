@@ -1,11 +1,12 @@
 .header {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 16px 16px 8px;
-  /* the panel top glows in the selected Digimon's own signature colour */
-  background: linear-gradient(180deg, var(--accent-faint), transparent);
+  gap: 14px;
+  align-items: center;
+  padding: 18px 18px 12px;
+  background: var(--surface);
+  box-shadow: inset 0 2px 0 var(--accent);
   animation: sectionIn var(--dur-2) var(--ease-out-quint) both;
+  flex-shrink: 0;
 }
 
 /* A light cascade as a new Digimon loads: header, actions, then body. The
@@ -31,8 +32,10 @@
 }
 
 .icon {
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
+  width: 80px;
+  height: 80px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: var(--surface-2);
   flex-shrink: 0;
   animation: iconPop var(--dur-2) var(--ease-out-quint) both;
@@ -54,6 +57,17 @@
   flex: 1;
 }
 
+.recordLabel {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .nameRow {
   display: flex;
   align-items: baseline;
@@ -61,7 +75,8 @@
 }
 
 .name {
-  font-size: var(--fs-xl);
+  font-size: 22px;
+  letter-spacing: -0.025em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -77,14 +92,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: 7px;
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  padding: 4px 16px 10px;
+  padding: 9px 18px 11px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.actions > button:first-child {
+  flex: 1;
 }
 
 .scroll {
@@ -100,13 +121,14 @@
   appearance: none;
   display: block;
   width: auto;
-  margin: 10px 16px 0;
-  padding: 0;
+  margin: 14px 18px 2px;
+  padding: 0 0 12px;
   border: none;
+  border-bottom: 1px solid var(--border);
   background: none;
   font: inherit;
-  font-size: var(--fs-sm);
-  line-height: 1.5;
+  font-size: var(--fs-md);
+  line-height: 1.55;
   text-align: left;
   color: var(--text-dim);
   cursor: pointer;
@@ -114,13 +136,13 @@
 
 .desc {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .traits {
-  padding: 10px 16px 16px;
+  padding: 12px 18px 18px;
   font-size: var(--fs-xs);
   color: var(--text-dim);
   border-top: 1px solid var(--border);

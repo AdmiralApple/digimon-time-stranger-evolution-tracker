@@ -3,20 +3,20 @@
 .switch {
   display: inline-flex;
   padding: 2px;
-  gap: 2px;
-  background: var(--surface-2);
+  gap: 0;
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 .seg,
 .active {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 11px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  gap: 7px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--text-dim);
   font-family: var(--font-display);
@@ -35,12 +35,13 @@
 }
 
 .seg:hover {
+  background: var(--surface);
   color: var(--text);
 }
 
 .active {
-  background: var(--accent-soft);
-  border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+  background: var(--surface-2);
+  box-shadow: inset 0 -2px 0 var(--accent);
   color: var(--text);
 }
 
@@ -50,6 +51,10 @@
 
 .label {
   line-height: 1;
+}
+
+.shortLabel {
+  display: none;
 }
 
 /* Touch: guarantee a comfortable tap target. */
@@ -64,11 +69,23 @@
 /* Phone: the icons alone carry the switch once space is tight (labels return
    on the roomier tablet+ top bar). */
 @media (max-width: 479px) {
-  .label {
+  .fullLabel {
     display: none;
+  }
+
+  .shortLabel {
+    display: inline;
   }
   .seg,
   .active {
-    padding-inline: 10px;
+    padding-inline: 6px;
+  }
+}
+
+/* Keep the useful Map/Roster labels on normal phones; only the narrowest devices
+   use icon-only buttons, which retain their accessible names. */
+@media (max-width: 359px) {
+  .shortLabel {
+    display: none;
   }
 }

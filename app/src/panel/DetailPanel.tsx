@@ -46,11 +46,12 @@ export function DetailPanel({ slug }: { slug: string }) {
           className={styles.icon}
           src={iconUrl(slug)}
           alt={digimon.name}
-          width={64}
-          height={64}
+          width={80}
+          height={80}
           style={{ borderColor: ATTRIBUTE_COLORS[digimon.attribute] }}
         />
         <div className={styles.titleBlock}>
+          <span className={styles.recordLabel}>Selected form</span>
           <div className={styles.nameRow}>
             <h2 className={styles.name}>{digimon.name}</h2>
             <span className={styles.number}>#{String(digimon.number).padStart(3, '0')}</span>
@@ -59,7 +60,7 @@ export function DetailPanel({ slug }: { slug: string }) {
             <Chip>{digimon.generation}</Chip>
             <Chip color={ATTRIBUTE_COLORS[digimon.attribute]}>{digimon.attribute}</Chip>
             <Chip>{digimon.type}</Chip>
-            {digimon.ridable && <Chip title="Ridable">🐎 Ridable</Chip>}
+            {digimon.ridable && <Chip title="Ridable">♞ Ridable</Chip>}
           </div>
         </div>
         <CloseButton onClick={() => select(null)} title="Close (Esc)" />
@@ -72,7 +73,7 @@ export function DetailPanel({ slug }: { slug: string }) {
           onClick={() => setFocus(focus === slug ? null : slug)}
           title="Isolate this Digimon's full lineage (F)"
         >
-          ◈ {focus === slug ? 'Unfocus' : 'Focus lineage'}
+          {focus === slug ? 'Show full map' : 'Isolate lineage'}
         </SegButton>
         {canHideBranch && (
           <SegButton
@@ -84,10 +85,10 @@ export function DetailPanel({ slug }: { slug: string }) {
           </SegButton>
         )}
         <SegButton size="sm" onClick={() => openRoute({ from: slug })}>
-          Route from
+          Start route
         </SegButton>
         <SegButton size="sm" onClick={() => openRoute({ to: slug })}>
-          Route to
+          Set as goal
         </SegButton>
       </div>
 

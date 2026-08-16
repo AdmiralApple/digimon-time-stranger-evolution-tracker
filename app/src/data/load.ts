@@ -2,8 +2,11 @@ import type { DigimonDatabase } from './schema';
 
 export class DataLoadError extends Error {}
 
+const publicAsset = (path: string): string =>
+  `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
+
 export async function loadDatabase(signal?: AbortSignal): Promise<DigimonDatabase> {
-  const res = await fetch('/digimon.json', { signal });
+  const res = await fetch(publicAsset('digimon.json'), { signal });
   if (!res.ok) throw new DataLoadError(`Failed to fetch digimon.json: HTTP ${res.status}`);
   const db = (await res.json()) as DigimonDatabase;
   if (db?.meta?.schemaVersion !== 1) {
@@ -17,7 +20,7 @@ export async function loadDatabase(signal?: AbortSignal): Promise<DigimonDatabas
 }
 
 /** Full-size 256px icon (detail-panel hero portrait). */
-export const iconUrl = (slug: string): string => `/icons/${slug}.png`;
+export const iconUrl = (slug: string): string => publicAsset(`icons/${slug}.png`);
 
 // Node + list thumbnails now come from the shared sprite atlas — see
 // src/data/atlas.ts (one request for all of them, warmed via preloadAtlas).

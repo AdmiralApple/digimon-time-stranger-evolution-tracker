@@ -1,19 +1,17 @@
 .panel {
-  /* subtle top wash in the brand amber (accent resets to amber when idle) */
-  background: linear-gradient(180deg, var(--accent-faint), transparent 220px), var(--surface);
+  background: var(--surface);
 }
 
 .scroll {
   flex: 1;
-  overflow-y: auto;
   min-height: 0;
-  padding: 22px 18px 20px;
+  overflow-y: auto;
+  padding: 26px 22px 22px;
 }
 
 .intro {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   animation: introIn var(--dur-3) var(--ease-out-quint) both;
 }
 
@@ -28,136 +26,263 @@
   }
 }
 
+.kicker {
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
 .heading {
-  font-size: var(--fs-2xl);
+  margin-top: 10px;
+  max-width: 12ch;
+  font-size: clamp(1.6rem, 2.6vw, 2rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
+.heading span {
+  color: var(--text-dim);
+}
+
 .lede {
-  margin: 0;
+  max-width: 40ch;
+  margin: 14px 0 0;
+  color: var(--text-dim);
   font-size: var(--fs-md);
   line-height: 1.55;
-  color: var(--text-dim);
-  max-width: 46ch;
 }
 
-.lede em {
-  font-style: normal;
-  color: var(--text);
+.heroActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 18px;
 }
 
-.surprise {
-  align-self: flex-start;
-  margin-top: 2px;
-  padding: 7px 14px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  border: none;
+.primary,
+.secondary {
+  min-height: 42px;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
   font-family: var(--font-display);
-  font-weight: 700;
   font-size: var(--fs-sm);
+  font-weight: 700;
+  text-align: left;
   transition:
     background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
     transform var(--dur-press) var(--ease-out-quart);
 }
 
-.surprise:hover {
-  background: var(--accent-strong);
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: var(--accent-ink);
 }
 
-.surprise:active {
-  transform: scale(0.96);
+.primary kbd {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: color-mix(in oklab, var(--accent-ink) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent-ink) 25%, transparent);
+  border-radius: var(--radius-xs);
+  font: inherit;
 }
 
-.sparkle {
-  display: inline-block;
-  transition: transform var(--transition) var(--ease-out-quint);
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
 }
 
-/* the spark twists as you reach for a random pick */
-.surprise:hover .sparkle {
-  transform: rotate(90deg) scale(1.15);
+.secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-.section {
-  margin-top: 22px;
+.primary:active,
+.secondary:active {
+  transform: scale(0.98);
 }
 
-.section > .label {
-  margin-bottom: 8px;
+.workflow {
+  display: flex;
+  flex-direction: column;
+  margin: 26px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
 }
 
-.featured {
+.step {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stepNumber {
+  color: var(--accent);
+  font-family: var(--font-brand);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.stepCopy {
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-/* the partner list slips in one after another as the panel arrives.
-   `backwards` (not `both`) so rows release to base style once landed — otherwise
-   a forwards-held transform would cancel MonRow's hover nudge. */
-.featured > button {
-  animation: featuredIn var(--dur-2) var(--ease-out-quint) backwards;
-}
-.featured > button:nth-child(1) {
-  animation-delay: 60ms;
-}
-.featured > button:nth-child(2) {
-  animation-delay: 105ms;
-}
-.featured > button:nth-child(3) {
-  animation-delay: 150ms;
-}
-.featured > button:nth-child(4) {
-  animation-delay: 195ms;
-}
-.featured > button:nth-child(5) {
-  animation-delay: 240ms;
-}
-.featured > button:nth-child(6) {
-  animation-delay: 285ms;
-}
-
-@keyframes featuredIn {
-  from {
-    opacity: 0;
-    transform: translateX(-7px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.keys {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.keyRow {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.key {
-  flex-shrink: 0;
-  min-width: 104px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-xs);
+.stepCopy strong {
   color: var(--text);
-  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-sm);
 }
 
-.keyDesc {
-  margin: 0;
+.stepCopy span {
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+  line-height: 1.35;
+}
+
+.section {
+  margin-top: 26px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.random {
+  padding: 2px 0;
+  background: none;
+  border: none;
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+}
+
+.random:hover {
+  color: var(--accent);
+}
+
+@media (pointer: coarse) {
+  .random {
+    min-height: 36px;
+    padding-inline: 8px;
+  }
+}
+
+.featured {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+
+.partner {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 9px 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  text-align: left;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.partner:nth-child(odd) {
+  border-right: 1px solid var(--border);
+}
+
+.partner:hover {
+  background: var(--surface-2);
+  color: var(--accent);
+}
+
+.partnerSprite {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.partnerCopy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 8px;
+}
+
+.partnerCopy strong {
+  overflow: hidden;
   font-size: var(--fs-sm);
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.partnerCopy span {
+  color: var(--text-mute);
+  font-size: var(--fs-micro);
+}
+
+.partnerArrow {
+  margin-left: 5px;
+  color: var(--text-mute);
+  font-size: var(--fs-sm);
+}
+
+.partner:hover .partnerArrow {
+  color: var(--accent);
+}
+
+.shortcut {
+  margin: 18px 0 0;
+  color: var(--text-mute);
+  font-size: var(--fs-2xs);
+  line-height: 1.45;
+}
+
+.shortcut kbd {
+  padding: 1px 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
   color: var(--text-dim);
+  font: inherit;
+}
+
+@media (max-height: 760px) {
+  .workflow {
+    margin-top: 20px;
+  }
+
+  .step {
+    padding-block: 8px;
+  }
+
+  .section {
+    margin-top: 20px;
+  }
 }

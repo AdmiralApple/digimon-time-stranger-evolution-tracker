@@ -50,14 +50,16 @@ export interface GraphPalette {
 
 export const GRAPH_PALETTES: Record<Theme, GraphPalette> = {
   dark: {
-    bg: '#0c0907',
-    surface: '#191714',
-    surface2: '#24211e',
-    border: '#413c38',
-    text: '#f0eeeb',
-    textDim: '#aeaaa5',
-    edge: '#5a544e',
-    edgeOpacity: 0.5,
+    bg: '#0b1018',
+    surface: '#141b25',
+    surface2: '#202a36',
+    border: '#405063',
+    text: '#f6f2e8',
+    textDim: '#b9c2cc',
+    // The complete 1,120-link network is orientation only. Direct, focused and
+    // routed relationships are promoted to full contrast by graph classes.
+    edge: '#a5b7ca',
+    edgeOpacity: 0.08,
     accent: '#f5b845', // default brand amber (per-node glow overrides via data)
     accent2: '#45bcd6',
     routeEvolve: '#f5b845',
@@ -65,20 +67,20 @@ export const GRAPH_PALETTES: Record<Theme, GraphPalette> = {
     jogress: '#a867e7',
     item: '#f48d2f',
     bond: '#45bcd6',
-    colLabel: '#f0eeeb',
-    colLabelOpacity: 0.42,
-    band: '#f0eeeb', // faint warm-white wash lifts the shaded stages off the near-black
-    bandOpacity: 0.065,
+    colLabel: '#aab9c9',
+    colLabelOpacity: 0.68,
+    band: '#8eb9e8',
+    bandOpacity: 0.045,
   },
   light: {
-    bg: '#ece7dd', // warm parchment — matches --graph-bg (light)
-    surface: '#f4efe7',
-    surface2: '#fdfbf7', // bright card so sprites sit on clean ground
-    border: '#c3baac',
-    text: '#2b2721',
-    textDim: '#6b6459',
-    edge: '#857b6a', // warm graphite line
-    edgeOpacity: 0.32, // quieter on parchment — at 0.5 the full-graph lineage web read as a busy grey cross-hatch
+    bg: '#ecebe5',
+    surface: '#f5f4ef',
+    surface2: '#fffdf7',
+    border: '#aeb9c5',
+    text: '#202a38',
+    textDim: '#566475',
+    edge: '#203246',
+    edgeOpacity: 0.09,
     accent: '#c07f0d',
     accent2: '#1c86a3', // deep cyan ancestry links
     routeEvolve: '#b9790a', // deep ochre-amber path, saturated for paper
@@ -86,10 +88,10 @@ export const GRAPH_PALETTES: Record<Theme, GraphPalette> = {
     jogress: '#7d3fc0',
     item: '#c2650f',
     bond: '#1c86a3',
-    colLabel: '#a89e8f', // warm-grey watermark
-    colLabelOpacity: 0.62,
-    band: '#4a4336', // warm graphite wash darkens the shaded stages on parchment
-    bandOpacity: 0.09,
+    colLabel: '#718094',
+    colLabelOpacity: 0.66,
+    band: '#42566e',
+    bandOpacity: 0.065,
   },
 };
 

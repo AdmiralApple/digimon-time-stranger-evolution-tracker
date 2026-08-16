@@ -2,20 +2,21 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: var(--bg);
 }
 
 /* =============================================================================
    Top bar
    Desktop: one row — brand · search · view toggles (pushed right) · settings.
-   Phones (≤639): a two-row grid so the search never gets crushed between the
-   brand and the controls; the view toggles drop to their own full-width row.
+   Compact widths (≤839): two flexible rows so search never gets crushed between the
+   brand and the controls.
    ============================================================================= */
 .topbar {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   min-height: var(--topbar-height);
-  padding: 0 max(14px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  padding: 0 max(18px, env(safe-area-inset-right)) 0 max(18px, env(safe-area-inset-left));
   padding-top: env(safe-area-inset-top);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -23,35 +24,73 @@
   z-index: var(--z-topbar);
 }
 
+/* These become two independently sized rows at compact widths. On desktop their
+   children participate directly in the top-bar flex layout. */
+.primaryChrome,
+.graphChrome {
+  display: contents;
+}
+
 .brand {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   white-space: nowrap;
+  order: 0;
+}
+
+.markFrame {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent-strong);
+  border-radius: var(--radius-sm);
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  transition:
+    color var(--transition),
+    background-color var(--transition);
 }
 
 .mark {
-  flex-shrink: 0;
-  color: var(--accent);
-  transition: color var(--transition);
+  display: grid;
+  place-items: center;
+}
+
+.brandType {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .title {
   font-family: var(--font-brand);
   font-size: var(--fs-xl);
   font-weight: 700;
-  letter-spacing: -0.005em;
+  letter-spacing: 0.01em;
+  line-height: 1;
   white-space: nowrap;
 }
 
-.titleAccent {
+.brandSub {
   color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
   transition: color var(--transition);
 }
 
 .search {
-  flex: 0 1 280px;
+  flex: 1 1 360px;
+  max-width: 440px;
   min-width: 0;
+  order: 2;
 }
 
 /* Top-level Tree ⇄ Codex switch — sits just right of the wordmark. */
@@ -59,6 +98,7 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  order: 1;
 }
 
 /* The graph actions (Filters / Route / Focus) own the auto-margin, so they and the
@@ -69,12 +109,21 @@
   align-items: center;
   gap: 6px;
   margin-left: auto;
+  order: 3;
 }
 
 .sysActions {
   display: flex;
   align-items: center;
   gap: 6px;
+  order: 4;
+}
+
+.utilityDivider {
+  width: 1px;
+  height: 24px;
+  margin-inline: 2px;
+  background: var(--border);
 }
 
 /* Codex hides the graph actions, so sysActions takes over pushing to the right. */
@@ -84,6 +133,10 @@
 
 /* The focus toggle shortens from "Focused — exit" to "Exit" when space is tight. */
 .focusShort {
+  display: none;
+}
+
+.routeShort {
   display: none;
 }
 
@@ -119,8 +172,7 @@
   flex: 1;
   position: relative;
   min-width: 0;
-  /* the "Digital World" viewport — night in dark, parchment in light (--graph-bg) */
-  background: var(--graph-bg);
+  background-color: var(--graph-bg);
 }
 
 /* Groups the graph + panel so the Codex overlay can mark the whole surface inert
@@ -179,6 +231,82 @@
 /* =============================================================================
    Panel host — docked column (desktop) → floating overlay (tablet / phone)
    ============================================================================= */
+.panelHost[data-mode='dock'] {
+  position: relative;
+  display: flex;
+  flex: 0 0 var(--panel-width);
+  min-width: 0;
+}
+
+.panelHost[data-mode='dock'] > aside {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.dockPanelToggle,
+.panelRestore {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  background: var(--legend-bg);
+  box-shadow: var(--shadow-dropdown);
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.dockPanelToggle {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+
+.panelRestore {
+  position: absolute;
+  top: 14px;
+  right: max(14px, env(safe-area-inset-right));
+  z-index: var(--z-overlay);
+}
+
+.dockPanelToggle svg,
+.panelRestore svg {
+  width: 17px;
+  height: 17px;
+}
+
+.dockPanelToggle:hover,
+.panelRestore:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface-2);
+}
+
+.dockPanelToggle:hover {
+  transform: translateX(-50%) translateX(2px);
+}
+
+.panelRestore:hover {
+  transform: translateX(-2px);
+}
+
+@media (pointer: coarse) {
+  .dockPanelToggle,
+  .panelRestore {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 .panelHost[data-mode='drawer'],
 .panelHost[data-mode='sheet'] {
   position: absolute;
@@ -221,13 +349,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  max-height: min(82dvh, 680px);
+  max-height: min(74dvh, 640px);
   background: var(--surface); /* solid sheet — the graph must not show through */
   border-top: 1px solid var(--border);
   border-top-left-radius: var(--radius-lg);
   border-top-right-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 -12px 34px oklch(0.08 0.01 66 / 0.5);
+  box-shadow: 0 -10px 28px color-mix(in oklab, var(--text) 14%, transparent);
   padding-bottom: env(safe-area-inset-bottom);
   transition: transform var(--transition), visibility 0s;
 }
@@ -276,6 +404,46 @@
 /* =============================================================================
    Legend overlay
    ============================================================================= */
+.graphHud {
+  position: absolute;
+  top: 14px;
+  left: max(14px, env(safe-area-inset-left));
+  width: min(280px, calc(100% - 28px));
+  padding: 10px 12px 9px;
+  background: var(--legend-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  pointer-events: none;
+  z-index: var(--z-overlay);
+}
+
+.graphOrder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-mute);
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: auto;
+  text-transform: uppercase;
+}
+
+.graphOrder select {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 24px 4px 7px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .legend {
   position: absolute;
   bottom: max(12px, env(safe-area-inset-bottom));
@@ -283,11 +451,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px 12px;
-  padding: 8px 11px;
+  padding: 9px 11px;
   background: var(--legend-bg);
-  backdrop-filter: blur(6px);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-2xs);
   color: var(--text-dim);
   max-width: 320px;
@@ -332,7 +499,7 @@
   }
   /* Below desktop the mark + the Tree/Codex switch carry the identity; drop the
      wordmark so the switch and search keep room. */
-  .title {
+  .brandType {
     display: none;
   }
   /* the drawer floats over a full-bleed graph, so shorten the focus label */
@@ -344,49 +511,82 @@
   }
 }
 
-@media (max-width: 639px) {
-  /* Phones: wrap into rows — [mark · switch · sys], then search, then the graph
-     actions. In Codex only the first row renders (no search / graph actions), so
-     unrendered rows never leave phantom gaps the way a fixed grid would. */
+@media (max-width: 839px) {
+  /* Compact tablets and phones: [mark · switch · sys], then search + graph
+     actions. In the roster only the first row renders, so no empty row remains. */
   .topbar {
-    flex-wrap: wrap;
-    row-gap: 8px;
-    column-gap: 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
     min-height: auto;
     padding-top: max(8px, env(safe-area-inset-top));
     padding-bottom: 8px;
   }
-  .brand {
-    order: 0;
+
+  .primaryChrome,
+  .graphChrome {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
   }
-  .viewSwitch {
-    order: 1;
-  }
+
   .sysActions {
-    order: 2;
-    margin-left: auto; /* pin the settings/theme cluster to the right of row 1 */
+    margin-left: auto;
   }
+  .topbar[data-view='codex'] .sysActions {
+    margin-left: auto;
+  }
+
   /* Search + graph actions share the second row (search flexes, Filters/Route hug
-     the right) so the phone header is two rows, not three — reclaiming ~40px of
-     graph height. They wrap to separate lines only if the row genuinely can't fit. */
+     the right) so the header stays two rows and preserves graph height. */
   .search {
-    order: 3;
-    flex: 1 1 55%;
-    min-width: 150px;
+    flex: 1 1 120px;
+    width: 100%;
+    max-width: none;
+    min-width: 120px;
   }
   .viewActions {
-    order: 4;
     flex: 0 0 auto;
-    margin-left: auto;
-    flex-wrap: wrap;
+    margin-left: 0;
+    flex-wrap: nowrap;
     justify-content: flex-end; /* hug the right edge rather than float mid-row */
   }
+}
+
+@media (max-width: 639px) {
+  .primaryChrome,
+  .graphChrome {
+    gap: 6px;
+  }
+
+  .utilityDivider {
+    display: none;
+  }
+
   .legend {
     max-width: min(320px, calc(100vw - 24px));
     font-size: var(--fs-2xs);
     gap: 4px 10px;
     padding: 7px 10px;
   }
+
+  .routeFull {
+    display: none;
+  }
+
+  .routeShort {
+    display: inline;
+  }
+
+  .graphHud {
+    top: 10px;
+    left: 10px;
+    width: auto;
+    max-width: calc(100% - 20px);
+    padding: 7px 9px;
+  }
+
 }
 
 /* Short landscape phones: keep the sheet from swallowing the whole screen. */

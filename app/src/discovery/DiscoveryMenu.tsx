@@ -2,9 +2,8 @@ import { useCallback, useRef, useState } from 'react';
 import { useStore } from '../state/store';
 import { appData } from '../data/appData';
 import { useAnchoredPopover } from '../ui/useAnchoredPopover';
+import { SAVE_FILE_ACCEPT, SAVE_PATH } from './saveMeta';
 import styles from './DiscoveryMenu.module.css';
-
-const SAVE_PATH = 'Steam\\userdata\\…\\1984270\\remote\\savedata0N.dat';
 
 /** Monochrome open-book glyph — reads as "field guide", stays graphite. */
 function GuideIcon() {
@@ -94,8 +93,8 @@ export function DiscoveryMenu() {
         onClick={() => setOpen(!open)}
         aria-haspopup="true"
         aria-expanded={open}
-        aria-label="Field Guide — import save, spoiler-free mode"
-        title="Field Guide — import save, spoiler-free mode"
+        aria-label="Game progress — import save, spoiler-free mode"
+        title="Game progress — import save, spoiler-free mode"
       >
         <span className={styles.icon}>
           <GuideIcon />
@@ -105,7 +104,7 @@ export function DiscoveryMenu() {
 
       <div ref={popRef} popover="manual" className={styles.pop}>
         <div className={styles.head}>
-          <span className={styles.title}>Field Guide</span>
+          <span className={styles.title}>Game progress</span>
           {hasSave && discovery.player && (
             <span className={styles.player}>{discovery.player}’s save</span>
           )}
@@ -179,7 +178,7 @@ export function DiscoveryMenu() {
             </button>
           </div>
           <span className={styles.hint}>
-            Show a “?” for the next unmet Digimon along a known line.
+            Show a “?” only for unmet Digimon directly connected to something you&rsquo;ve revealed.
           </span>
         </div>
 
@@ -190,7 +189,7 @@ export function DiscoveryMenu() {
           ref={fileRef}
           type="file"
           className={styles.file}
-          accept=".dat,.bin"
+          accept={SAVE_FILE_ACCEPT}
           onChange={onFile}
         />
         {msg && <span className={msg.ok ? styles.msgOk : styles.msgErr}>{msg.text}</span>}

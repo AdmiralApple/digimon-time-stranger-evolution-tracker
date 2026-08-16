@@ -26,9 +26,14 @@ function CodexIcon() {
   );
 }
 
-const OPTIONS: Array<{ value: AppView; label: string; icon: () => JSX.Element }> = [
-  { value: 'graph', label: 'Tree', icon: TreeIcon },
-  { value: 'codex', label: 'Field guide', icon: CodexIcon },
+const OPTIONS: Array<{
+  value: AppView;
+  label: string;
+  shortLabel: string;
+  icon: () => JSX.Element;
+}> = [
+  { value: 'graph', label: 'Evolution map', shortLabel: 'Map', icon: TreeIcon },
+  { value: 'codex', label: 'Roster', shortLabel: 'Roster', icon: CodexIcon },
 ];
 
 /**
@@ -45,7 +50,7 @@ export function ViewSwitch({
 }) {
   return (
     <div className={styles.switch} role="radiogroup" aria-label="View">
-      {OPTIONS.map(({ value: option, label, icon: Icon }) => {
+      {OPTIONS.map(({ value: option, label, shortLabel, icon: Icon }) => {
         const active = value === option;
         return (
           <button
@@ -53,11 +58,15 @@ export function ViewSwitch({
             type="button"
             role="radio"
             aria-checked={active}
+            aria-label={label}
             className={active ? styles.active : styles.seg}
             onClick={() => onChange(option)}
           >
             <Icon />
-            <span className={styles.label}>{label}</span>
+            <span className={styles.label}>
+              <span className={styles.fullLabel}>{label}</span>
+              <span className={styles.shortLabel}>{shortLabel}</span>
+            </span>
           </button>
         );
       })}

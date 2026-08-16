@@ -2,6 +2,9 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  // GitHub project Pages serves from /<repository>/; local development and
+  // other hosts continue to use the domain root.
+  base: process.env.VITE_BASE_PATH ?? '/',
   plugins: [react()],
   // publicDir is the default 'public/' — generated from data/ by `npm run data:sync`
   build: {

@@ -7,6 +7,8 @@ interface SegButtonProps {
   active?: boolean;
   /** `md` for the top bar, `sm` for the denser detail-panel actions. */
   size?: 'sm' | 'md';
+  /** Optional stronger treatment for a primary workflow action. */
+  tone?: 'default' | 'primary';
   title?: string;
   onClick?: () => void;
 }
@@ -15,10 +17,17 @@ interface SegButtonProps {
  * A small segmented toggle button (font-display, accent hover/active).
  * The app's standard toolbar / action affordance.
  */
-export function SegButton({ children, active, size = 'md', title, onClick }: SegButtonProps) {
+export function SegButton({
+  children,
+  active,
+  size = 'md',
+  tone = 'default',
+  title,
+  onClick,
+}: SegButtonProps) {
   return (
     <button
-      className={`${styles.btn} ${styles[size]} ${active ? styles.active : ''}`}
+      className={`${styles.btn} ${styles[size]} ${tone === 'primary' ? styles.primary : ''} ${active ? styles.active : ''}`}
       onClick={onClick}
       title={title}
       aria-pressed={active}

@@ -1,5 +1,5 @@
 .btn {
-  background: var(--surface-2);
+  background: transparent;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
@@ -14,6 +14,7 @@
 
 .btn:hover {
   border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
+  background: var(--surface-2);
   color: var(--text);
 }
 
@@ -28,13 +29,27 @@
   color: var(--text);
 }
 
+.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.primary:hover,
+.primary.active {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--accent-ink);
+}
+
 .sm {
-  padding: 4px 10px;
+  padding: 6px 10px;
   font-size: var(--fs-xs);
 }
 
 .md {
-  padding: 5px 12px;
+  padding: 7px 13px;
   font-size: var(--fs-sm);
 }
 
