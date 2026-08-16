@@ -17,7 +17,7 @@ import {
 import type { Core } from 'cytoscape';
 
 const APPEARANCE_CLASSES =
-  'sel dim-soft dim-hard dim-filter hidden fog fog-edge frontier-active frontier-neighbor frontier-next frontier-prev lineage-next lineage-prev lineage-prev-thin filter-mute route-dim route-glow route-glow-devolve route-node route-step-active';
+  'sel dim-soft dim-hard dim-filter hidden fog fog-edge path-ghosts-hidden frontier-active frontier-neighbor frontier-next frontier-prev lineage-next lineage-prev lineage-prev-thin filter-mute route-dim route-glow route-glow-devolve route-node route-step-active';
 
 const prefersReduce = (): boolean =>
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -212,6 +212,11 @@ function recompute(state: AppState): void {
     // fog-of-war base layer: hide/silhouette the undiscovered before anything else.
     paintFog(cy, state);
 
+    // Remove only the quiet overview network. Highlight selectors appear later
+    // in the stylesheet, so hover, frontier, selection, focus and route paths
+    // remain fully legible while path ghosts are disabled.
+    if (!state.showPathGhosts) cy.edges().addClass('path-ghosts-hidden');
+
     // focus layer: isolate the lineage. `hideOthers` removes everything else
     // outright (display:none); otherwise it's hard-dimmed to a faint context.
     // Inside the lineage, edges are coloured by direction relative to the anchor.
@@ -367,7 +372,7 @@ export function frameGraph(cy: Core, animate = true): void {
     return;
   }
 
-  arrangeGraph(cy, state.graphOrder, state.selected, o, false);
+  arrangeGraph(cy, state.graphOrder, state.selected, o, state.centerSelectedLinks, false);
 
   const anchor = state.selected ? cy.$id(state.selected) : null;
   if (anchor?.length) {
@@ -424,6 +429,7 @@ export function useGraphController(): void {
             s.routeOpen,
             s.lineageExcluded,
             s.discovery,
+            s.showPathGhosts,
           ] as const,
         () => {
           recompute(useStore.getState());
@@ -459,23 +465,24 @@ export function useGraphController(): void {
           };
           if (
             cy &&
-            state.graphOrder === 'connections' &&
+            state.centerSelectedLinks &&
             !state.focus &&
             !state.routeOpen &&
             !hasActiveCriteria(criteria)
           ) {
             // Selection changes only rearrange rows; the camera deliberately
             // stays exactly where the user left it.
-            arrangeGraph(cy, state.graphOrder, selected, state.orientation, true);
+            arrangeGraph(cy, state.graphOrder, selected, state.orientation, true, true);
           }
         },
       ),
 
-      // Explicit order changes use the same smooth row transition but never
-      // steal the camera. Focus, routes, and filtered compaction own their own
+      // Base order and link-centering are independent. Either change uses the
+      // same smooth row transition but never steals the camera. Focus, routes,
+      // and filtered compaction own their own
       // layouts; the chosen order applies as soon as the normal atlas returns.
       useStore.subscribe(
-        (s) => s.graphOrder,
+        (s) => [s.graphOrder, s.centerSelectedLinks] as const,
         () => {
           const cy = getCy();
           const state = useStore.getState();
@@ -485,7 +492,45 @@ export function useGraphController(): void {
             personalities: state.personalities,
           };
           if (!cy || state.focus || state.routeOpen || hasActiveCriteria(criteria)) return;
-          arrangeGraph(cy, state.graphOrder, state.selected, state.orientation, true);
+          arrangeGraph(
+            cy,
+            state.graphOrder,
+            state.selected,
+            state.orientation,
+            state.centerSelectedLinks,
+            true,
+          );
+        },
+        { equalityFn: (a, b) => a.every((v, i) => v === b[i]) },
+      ),
+
+      // Revealing a form changes which nodes count as silhouettes. Hidden-first
+      // ordering follows that frontier immediately without moving the camera.
+      useStore.subscribe(
+        (s) => s.discovery,
+        () => {
+          const cy = getCy();
+          const state = useStore.getState();
+          const criteria = {
+            attributes: state.attributes,
+            special: state.special,
+            personalities: state.personalities,
+          };
+          if (
+            !cy ||
+            state.graphOrder !== 'hidden' ||
+            state.focus ||
+            state.routeOpen ||
+            hasActiveCriteria(criteria)
+          ) return;
+          arrangeGraph(
+            cy,
+            state.graphOrder,
+            state.selected,
+            state.orientation,
+            state.centerSelectedLinks,
+            true,
+          );
         },
       ),
 

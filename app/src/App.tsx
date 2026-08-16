@@ -67,6 +67,12 @@ function Splash({ children }: { children: React.ReactNode }) {
 function GraphHud() {
   const graphOrder = useStore((s) => s.graphOrder);
   const setGraphOrder = useStore((s) => s.setGraphOrder);
+  const centerSelectedLinks = useStore((s) => s.centerSelectedLinks);
+  const setCenterSelectedLinks = useStore((s) => s.setCenterSelectedLinks);
+  const showGrid = useStore((s) => s.showGrid);
+  const setShowGrid = useStore((s) => s.setShowGrid);
+  const showPathGhosts = useStore((s) => s.showPathGhosts);
+  const setShowPathGhosts = useStore((s) => s.setShowPathGhosts);
 
   return (
     <div className={styles.graphHud}>
@@ -77,12 +83,44 @@ function GraphHud() {
           onChange={(event) => setGraphOrder(event.target.value as typeof graphOrder)}
           aria-label="Node order"
         >
-          <option value="connections">Selected links</option>
+          <option value="hidden">Hidden first</option>
           <option value="original">Original</option>
           <option value="name">Name</option>
           <option value="number">ID</option>
         </select>
       </label>
+      <div className={styles.graphToggles} role="group" aria-label="Graph options">
+        <button
+          type="button"
+          className={styles.graphToggle}
+          data-active={centerSelectedLinks}
+          aria-pressed={centerSelectedLinks}
+          onClick={() => setCenterSelectedLinks(!centerSelectedLinks)}
+        >
+          <span className={styles.toggleMark} aria-hidden="true" />
+          Selected links
+        </button>
+        <button
+          type="button"
+          className={styles.graphToggle}
+          data-active={showGrid}
+          aria-pressed={showGrid}
+          onClick={() => setShowGrid(!showGrid)}
+        >
+          <span className={styles.toggleMark} aria-hidden="true" />
+          Grid
+        </button>
+        <button
+          type="button"
+          className={styles.graphToggle}
+          data-active={showPathGhosts}
+          aria-pressed={showPathGhosts}
+          onClick={() => setShowPathGhosts(!showPathGhosts)}
+        >
+          <span className={styles.toggleMark} aria-hidden="true" />
+          Path ghosts
+        </button>
+      </div>
     </div>
   );
 }

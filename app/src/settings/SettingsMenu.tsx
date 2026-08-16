@@ -202,10 +202,10 @@ export function SettingsMenu() {
         />
         <Segmented<GraphOrder>
           label="Node order"
-          hint="Connections centers immediate forms around your selection. Name and ID sort within each generation."
+          hint="Hidden first moves frontier silhouettes to the leading edge of each generation."
           value={graphOrder}
           choices={[
-            { value: 'connections', label: 'Links' },
+            { value: 'hidden', label: 'Hidden' },
             { value: 'original', label: 'Base' },
             { value: 'name', label: 'Name' },
             { value: 'number', label: 'ID' },

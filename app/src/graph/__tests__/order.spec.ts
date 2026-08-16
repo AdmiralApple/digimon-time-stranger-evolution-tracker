@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { centeredSlots } from '../order';
+import { centeredSlots, hiddenFirstOrder } from '../order';
 
 describe('centeredSlots', () => {
   it('centers three related forms around visual index 40', () => {
@@ -27,5 +27,15 @@ describe('centeredSlots', () => {
     const unrelated = ['a', 'c', 'e'].sort((a, b) => slots.get(a)! - slots.get(b)!);
 
     expect(unrelated).toEqual(['a', 'c', 'e']);
+  });
+});
+
+describe('hiddenFirstOrder', () => {
+  it('moves silhouettes to the leading edge without disturbing either group', () => {
+    const ordered = ['a', 'b', 'c', 'd', 'e'];
+    const result = hiddenFirstOrder(ordered, new Set(['b', 'd']));
+
+    expect(result).toEqual(['b', 'd', 'a', 'c', 'e']);
+    expect(ordered).toEqual(['a', 'b', 'c', 'd', 'e']);
   });
 });

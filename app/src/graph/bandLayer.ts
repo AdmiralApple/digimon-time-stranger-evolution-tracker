@@ -58,30 +58,32 @@ export function attachBandLayer(cy: Core): () => void {
     const zoom = cy.zoom();
     const pan = cy.pan();
 
-    // Keep lines readable when zoomed far out by dropping alternate subdivisions.
-    // The pitch only changes by powers of two, so every visible line stays locked
-    // to the same model-space origin and never swims relative to a node.
-    let gridPitch = GRID_PITCH;
-    while (gridPitch * zoom < GRID_MIN_SCREEN_PITCH) gridPitch *= 2;
-    const screenPitch = gridPitch * zoom;
-    const firstX = ((pan.x % screenPitch) + screenPitch) % screenPitch;
-    const firstY = ((pan.y % screenPitch) + screenPitch) % screenPitch;
-    ctx.strokeStyle = palette.border;
-    ctx.globalAlpha = 0.13;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let x = firstX; x <= cssW; x += screenPitch) {
-      const crispX = Math.round(x) + 0.5;
-      ctx.moveTo(crispX, 0);
-      ctx.lineTo(crispX, cssH);
+    if (s.showGrid) {
+      // Keep lines readable when zoomed far out by dropping alternate subdivisions.
+      // The pitch only changes by powers of two, so every visible line stays locked
+      // to the same model-space origin and never swims relative to a node.
+      let gridPitch = GRID_PITCH;
+      while (gridPitch * zoom < GRID_MIN_SCREEN_PITCH) gridPitch *= 2;
+      const screenPitch = gridPitch * zoom;
+      const firstX = ((pan.x % screenPitch) + screenPitch) % screenPitch;
+      const firstY = ((pan.y % screenPitch) + screenPitch) % screenPitch;
+      ctx.strokeStyle = palette.border;
+      ctx.globalAlpha = 0.13;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = firstX; x <= cssW; x += screenPitch) {
+        const crispX = Math.round(x) + 0.5;
+        ctx.moveTo(crispX, 0);
+        ctx.lineTo(crispX, cssH);
+      }
+      for (let y = firstY; y <= cssH; y += screenPitch) {
+        const crispY = Math.round(y) + 0.5;
+        ctx.moveTo(0, crispY);
+        ctx.lineTo(cssW, crispY);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
     }
-    for (let y = firstY; y <= cssH; y += screenPitch) {
-      const crispY = Math.round(y) + 0.5;
-      ctx.moveTo(0, crispY);
-      ctx.lineTo(cssW, crispY);
-    }
-    ctx.stroke();
-    ctx.globalAlpha = 1;
 
     if (s.focus || s.routeOpen) return; // stage bands are full-graph only
 
@@ -114,9 +116,9 @@ export function attachBandLayer(cy: Core): () => void {
     draw();
   });
   const unsubStore = useStore.subscribe(
-    (st) => [st.focus, st.routeOpen, st.orientation] as const,
+    (st) => [st.focus, st.routeOpen, st.orientation, st.showGrid] as const,
     draw,
-    { equalityFn: (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2] },
+    { equalityFn: (a, b) => a.every((value, index) => value === b[index]) },
   );
   resize();
 
