@@ -144,6 +144,12 @@ export function GraphCanvas() {
       if (node.hasClass('fog')) {
         clearHoverPreview();
         clearFrontierPreview();
+        // Hand off from the normal selection layer before stamping the manual
+        // silhouette preview. Otherwise the previous node's neighborhood stays
+        // highlighted because silhouettes intentionally never become `selected`.
+        // This update is synchronous; its appearance recompute finishes before
+        // the frontier classes below are applied.
+        useStore.getState().select(null);
         const id = node.id() as string;
         const revealed = revealedSet(useStore.getState().discovery);
         const connections = revealedFrontierConnections(appData().graph, revealed, id);

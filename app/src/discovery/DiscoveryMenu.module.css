@@ -170,6 +170,8 @@
   color: var(--text-mute);
 }
 .path {
+  display: block;
+  margin-top: 4px;
   font-family: var(--font-display);
   font-size: var(--fs-micro);
   color: var(--text-dim);

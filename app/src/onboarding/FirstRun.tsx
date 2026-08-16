@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { SAVE_FILE_ACCEPT, SAVE_PATH } from '../discovery/saveMeta';
+import { SAVE_FILE_ACCEPT, SAVE_FILE_EXAMPLE, SAVE_PATH } from '../discovery/saveMeta';
 import { appData } from '../data/appData';
 import { useStore } from '../state/store';
 import { BrandMark } from '../ui/BrandMark';
@@ -73,7 +73,6 @@ export function FirstRun({ onComplete }: { onComplete: () => void }) {
         <header className={styles.header}>
           <span className={styles.mark}><BrandMark size={42} animated /></span>
           <div>
-            <span className={styles.eyebrow}>Spoiler-safe setup</span>
             <h1 id="first-run-title">How should the atlas begin?</h1>
           </div>
         </header>
@@ -106,7 +105,11 @@ export function FirstRun({ onComplete }: { onComplete: () => void }) {
               accept={SAVE_FILE_ACCEPT}
               onChange={onFile}
             />
-            <span className={styles.path}>Usually at {SAVE_PATH}</span>
+            <span className={styles.path}>
+              For Steam: {SAVE_PATH}
+              <br />
+              Example: {SAVE_FILE_EXAMPLE}
+            </span>
           </article>
 
           <article className={styles.choice}>
