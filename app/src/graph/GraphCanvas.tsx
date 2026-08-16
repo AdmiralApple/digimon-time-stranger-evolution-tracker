@@ -134,6 +134,12 @@ export function GraphCanvas() {
       hoveredId = '';
       container.style.cursor = '';
     };
+    const unsubscribeFrontierSelection = useStore.subscribe(
+      (state) => state.frontierSelected,
+      (selected) => {
+        if (selected !== frontierId) clearFrontierPreview();
+      },
+    );
 
     let lastTap = { id: '', time: 0 };
     cy.on('tap', 'node', (event) => {
@@ -145,6 +151,10 @@ export function GraphCanvas() {
         clearHoverPreview();
         clearFrontierPreview();
         const id = node.id() as string;
+        // Hand off from the normal selection layer before stamping the manual
+        // silhouette preview. The store keeps this anonymous target separate so
+        // the panel can offer reveal without exposing its identity first.
+        useStore.getState().selectFrontier(id);
         const revealed = revealedSet(useStore.getState().discovery);
         const connections = revealedFrontierConnections(appData().graph, revealed, id);
         if (!connections.length) return;
@@ -243,6 +253,7 @@ export function GraphCanvas() {
       if (edgeCullPending) cancelAnimationFrame(edgeCullPending);
       clearHoverPreview();
       clearFrontierPreview();
+      unsubscribeFrontierSelection();
       unregisterCy();
       cy.destroy();
     };

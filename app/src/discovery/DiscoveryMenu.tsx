@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useStore } from '../state/store';
 import { appData } from '../data/appData';
 import { useAnchoredPopover } from '../ui/useAnchoredPopover';
-import { SAVE_FILE_ACCEPT, SAVE_PATH } from './saveMeta';
+import { SAVE_FILE_ACCEPT, SAVE_FILE_EXAMPLE, SAVE_PATH } from './saveMeta';
 import styles from './DiscoveryMenu.module.css';
 
 /** Monochrome open-book glyph — reads as "field guide", stays graphite. */
@@ -194,8 +194,12 @@ export function DiscoveryMenu() {
         />
         {msg && <span className={msg.ok ? styles.msgOk : styles.msgErr}>{msg.text}</span>}
         <span className={styles.hint}>
-          Read locally in your browser — nothing is uploaded. Find it at{' '}
-          <span className={styles.path}>{SAVE_PATH}</span>
+          Read locally in your browser — nothing is uploaded.
+          <span className={styles.path}>
+            For Steam: {SAVE_PATH}
+            <br />
+            Example: {SAVE_FILE_EXAMPLE}
+          </span>
         </span>
 
         {hasSave && (

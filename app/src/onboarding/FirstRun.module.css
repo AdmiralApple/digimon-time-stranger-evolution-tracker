@@ -40,7 +40,6 @@
   background: var(--accent-faint);
 }
 
-.eyebrow,
 .recommended,
 .revealLabel {
   display: block;
@@ -48,11 +47,6 @@
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-}
-
-.eyebrow {
-  margin-bottom: 3px;
-  color: var(--accent);
 }
 
 .header h1 {
