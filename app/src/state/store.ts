@@ -231,6 +231,9 @@ export interface AppState {
   ready: boolean;
   view: AppView;
   selected: string | null;
+  /** Anonymous frontier silhouette currently traced on the graph. Kept separate
+   *  from `selected` so the detail surface cannot leak its identity. */
+  frontierSelected: string | null;
   focus: string | null;
   /** Branches the user has pruned out of the *currently focused* lineage, to cut
    *  clutter when the endpoint isn't decided yet. Each excluded slug — and
@@ -264,6 +267,8 @@ export interface AppState {
   importSave(bytes: Uint8Array): { discovered: number; registered: number; player: string };
   setDiscoveryMode(on: boolean): void;
   setFrontier(on: boolean): void;
+  /** Permanently add one form to this browser's hand-revealed atlas progress. */
+  reveal(slug: string): void;
   /** Hand-reveal (or re-hide) one species, independent of any imported save. */
   toggleReveal(slug: string): void;
   /** Forget all imported/hand-revealed progress. */
@@ -275,6 +280,7 @@ export interface AppState {
    *  isolated on demand (rather than arriving pre-focused). */
   openInTree(slug: string): void;
   select(slug: string | null): void;
+  selectFrontier(slug: string | null): void;
   setFocus(slug: string | null): void;
   /** Prune a branch out of the focused lineage. No-op outside focus, or on the
    *  focus itself. Clears the selection if it was the branch being hidden. */
@@ -328,6 +334,7 @@ export const useStore = create<AppState>()(
     ready: false,
     view: 'graph',
     selected: null,
+    frontierSelected: null,
     focus: null,
     lineageExcluded: new Set<string>(),
     attributes: new Set<Attribute>(),
@@ -353,7 +360,7 @@ export const useStore = create<AppState>()(
         registered: progress.registered,
         scanPct: progress.scanPct,
       };
-      set({ discovery: next });
+      set({ discovery: next, frontierSelected: null });
       saveDiscovery(next);
       return {
         discovered: progress.discovered.size,
@@ -363,11 +370,20 @@ export const useStore = create<AppState>()(
     },
     setDiscoveryMode: (on) => {
       const next = { ...get().discovery, mode: on };
-      set({ discovery: next });
+      set({ discovery: next, frontierSelected: on ? get().frontierSelected : null });
       saveDiscovery(next);
     },
     setFrontier: (on) => {
       const next = { ...get().discovery, frontier: on };
+      set({ discovery: next, frontierSelected: on ? get().frontierSelected : null });
+      saveDiscovery(next);
+    },
+    reveal: (slug) => {
+      const d = get().discovery;
+      if (revealedSet(d).has(slug)) return;
+      const manual = new Set(d.manual);
+      manual.add(slug);
+      const next = { ...d, manual };
       set({ discovery: next });
       saveDiscovery(next);
     },
@@ -384,7 +400,7 @@ export const useStore = create<AppState>()(
     },
     clearDiscovery: () => {
       const next: DiscoveryState = { ...EMPTY_DISCOVERY, frontier: get().discovery.frontier };
-      set({ discovery: next });
+      set({ discovery: next, frontierSelected: null });
       saveDiscovery(next);
     },
     patchCodex: (patch) => set({ codex: { ...get().codex, ...patch } }),
@@ -394,18 +410,26 @@ export const useStore = create<AppState>()(
     setView: (view) =>
       set(
         view === 'codex'
-          ? { view, focus: null, routeOpen: false, lineageExcluded: new Set<string>() }
+          ? {
+              view,
+              focus: null,
+              routeOpen: false,
+              frontierSelected: null,
+              lineageExcluded: new Set<string>(),
+            }
           : { view },
       ),
     openInTree: (slug) =>
       set({
         view: 'graph',
         selected: slug,
+        frontierSelected: null,
         focus: null,
         routeOpen: false,
         lineageExcluded: new Set<string>(),
       }),
-    select: (slug) => set({ selected: slug }),
+    select: (slug) => set({ selected: slug, frontierSelected: null }),
+    selectFrontier: (slug) => set({ selected: null, frontierSelected: slug }),
     // Focus and the route planner are mutually exclusive views (as the URL model
     // already assumes): a route can devolve out of a lineage, which can't be shown
     // inside a focus that isolates — and compacts — only that lineage. Entering
@@ -414,7 +438,12 @@ export const useStore = create<AppState>()(
     setFocus: (slug) =>
       set(
         slug
-          ? { focus: slug, routeOpen: false, lineageExcluded: new Set<string>() }
+          ? {
+              focus: slug,
+              routeOpen: false,
+              frontierSelected: null,
+              lineageExcluded: new Set<string>(),
+            }
           : { focus: null, lineageExcluded: new Set<string>() },
       ),
     excludeFromLineage: (slug) => {
@@ -467,6 +496,7 @@ export const useStore = create<AppState>()(
       set({
         routeOpen: true,
         focus: null, // route and focus are mutually exclusive (see setFocus)
+        frontierSelected: null,
         lineageExcluded: new Set<string>(), // leaving focus drops its exclusions
         route: computeRoutes({ ...get().route, ...partial }),
       }),

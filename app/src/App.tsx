@@ -9,6 +9,7 @@ import { HiddenBranches } from './graph/HiddenBranches';
 import { Celebration } from './route/Celebration';
 import { DetailPanel } from './panel/DetailPanel';
 import { EmptyPanel } from './panel/EmptyPanel';
+import { FrontierPanel } from './panel/FrontierPanel';
 import { RoutePlanner } from './route/RoutePlanner';
 import { SearchBox } from './search/SearchBox';
 import { SettingsMenu } from './settings/SettingsMenu';
@@ -229,6 +230,7 @@ export default function App() {
   const view = useStore((s) => s.view);
   const setView = useStore((s) => s.setView);
   const selected = useStore((s) => s.selected);
+  const frontierSelected = useStore((s) => s.frontierSelected);
   const routeOpen = useStore((s) => s.routeOpen);
   const focus = useStore((s) => s.focus);
   const filtersOpen = useStore((s) => s.filtersOpen);
@@ -246,7 +248,8 @@ export default function App() {
   const overlay = useMediaQuery('(max-width: 1023px)');
   const compact = useMediaQuery('(max-width: 639px)');
   const panelMode: PanelMode = !overlay ? 'dock' : compact ? 'sheet' : 'drawer';
-  const panelAvailable = panelMode === 'dock' || routeOpen || Boolean(selected);
+  const panelAvailable =
+    panelMode === 'dock' || routeOpen || Boolean(selected) || Boolean(frontierSelected);
   const panelOpen = panelAvailable && (panelMode !== 'dock' || panelVisible);
 
   useEffect(() => {
@@ -279,7 +282,7 @@ export default function App() {
   const [sheetCollapsed, setSheetCollapsed] = useState(false);
   useEffect(() => {
     setSheetCollapsed(false);
-  }, [selected, routeOpen]);
+  }, [selected, frontierSelected, routeOpen]);
 
   // Opening the route planner is an explicit request for panel content, so it
   // restores a panel the user may previously have hidden. Plain node selection
@@ -287,6 +290,12 @@ export default function App() {
   useEffect(() => {
     if (routeOpen) setPanelVisible(true);
   }, [routeOpen]);
+
+  // A silhouette's only action lives in the anonymous detail surface, so make
+  // that panel visible immediately even when the desktop dossier was hidden.
+  useEffect(() => {
+    if (frontierSelected) setPanelVisible(true);
+  }, [frontierSelected]);
 
   if (error) {
     return (
@@ -318,6 +327,8 @@ export default function App() {
   // graph is full-bleed it stays out of the way until the user picks something.
   const panelContent = routeOpen ? (
     <RoutePlanner />
+  ) : frontierSelected ? (
+    <FrontierPanel key={frontierSelected} slug={frontierSelected} />
   ) : selected ? (
     // key by slug so switching Digimon replays the panel's entrance (and the
     // stat bars re-fill) rather than swapping content in place

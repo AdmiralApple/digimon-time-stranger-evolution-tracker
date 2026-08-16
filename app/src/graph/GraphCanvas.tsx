@@ -134,6 +134,12 @@ export function GraphCanvas() {
       hoveredId = '';
       container.style.cursor = '';
     };
+    const unsubscribeFrontierSelection = useStore.subscribe(
+      (state) => state.frontierSelected,
+      (selected) => {
+        if (selected !== frontierId) clearFrontierPreview();
+      },
+    );
 
     let lastTap = { id: '', time: 0 };
     cy.on('tap', 'node', (event) => {
@@ -144,13 +150,11 @@ export function GraphCanvas() {
       if (node.hasClass('fog')) {
         clearHoverPreview();
         clearFrontierPreview();
-        // Hand off from the normal selection layer before stamping the manual
-        // silhouette preview. Otherwise the previous node's neighborhood stays
-        // highlighted because silhouettes intentionally never become `selected`.
-        // This update is synchronous; its appearance recompute finishes before
-        // the frontier classes below are applied.
-        useStore.getState().select(null);
         const id = node.id() as string;
+        // Hand off from the normal selection layer before stamping the manual
+        // silhouette preview. The store keeps this anonymous target separate so
+        // the panel can offer reveal without exposing its identity first.
+        useStore.getState().selectFrontier(id);
         const revealed = revealedSet(useStore.getState().discovery);
         const connections = revealedFrontierConnections(appData().graph, revealed, id);
         if (!connections.length) return;
@@ -249,6 +253,7 @@ export function GraphCanvas() {
       if (edgeCullPending) cancelAnimationFrame(edgeCullPending);
       clearHoverPreview();
       clearFrontierPreview();
+      unsubscribeFrontierSelection();
       unregisterCy();
       cy.destroy();
     };
